@@ -1,0 +1,487 @@
+/* css/extras.css
+   ==========================================================================
+   1. QUICK ACTION ROW (top bar ke just niche: Themes = left, Daily = right)
+   2. DAILY REWARD MODAL
+   3. GOTI / BOARD THEME MODAL
+   4. BOARD THEME COLOR VARIABLES
+   ========================================================================== */
+
+/* ==========================================================================
+   SECTION 1: QUICK ACTION ROW
+   ========================================================================== */
+#quick-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.quick-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 14px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--text-white);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+}
+
+.quick-btn:active {
+    transform: scale(0.95);
+}
+
+.quick-btn .quick-emoji {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.quick-btn-theme {
+    border-color: rgba(121, 40, 202, 0.55);
+    box-shadow: 0 4px 14px rgba(121, 40, 202, 0.28);
+}
+
+.quick-btn-reward {
+    border-color: rgba(255, 196, 0, 0.55);
+    box-shadow: 0 4px 14px rgba(255, 176, 0, 0.28);
+}
+
+.quick-btn-reward.reward-ready {
+    animation: rewardReadyPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rewardReadyPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(255, 176, 0, 0.28); }
+    50%      { box-shadow: 0 4px 20px rgba(255, 196, 0, 0.75); }
+}
+
+.quick-dot {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ff3b5c;
+    border: 1.5px solid #ffffff;
+    display: none;
+}
+
+/* ==========================================================================
+   SECTION 2: SHARED SHEET STYLE FOR NEW MODALS
+   ========================================================================== */
+.sheet-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 2, 12, 0.66);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 3000;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 0;
+}
+
+.sheet-panel {
+    width: 100%;
+    max-width: 420px;
+    max-height: 86vh;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(38, 20, 68, 0.98), rgba(14, 8, 30, 0.99));
+    border: 1px solid var(--glass-border);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    padding: 16px 16px calc(22px + env(safe-area-inset-bottom)) 16px;
+    box-shadow: 0 -14px 40px rgba(0, 0, 0, 0.55);
+    animation: sheetRise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="day"] .sheet-panel {
+    background: linear-gradient(180deg, #ffffff, #eef2fb);
+}
+
+@keyframes sheetRise {
+    from { transform: translateY(40px); opacity: 0.4; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+.sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.sheet-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-white);
+}
+
+.sheet-sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.sheet-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--stat-box-bg);
+    color: var(--text-white);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   SECTION 3: DAILY REWARD GRID
+   ========================================================================== */
+.daily-reward-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.reward-day {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 10px 4px 9px 4px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    min-height: 74px;
+}
+
+[data-theme="day"] .reward-day {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+.reward-day-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.reward-coin-icon { font-size: 16px; line-height: 1; }
+
+.reward-day-amount {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-white);
+}
+
+.reward-day.mega {
+    grid-column: span 4;
+    flex-direction: row;
+    gap: 8px;
+    min-height: 58px;
+    background: linear-gradient(120deg, rgba(255, 196, 0, 0.22), rgba(255, 0, 128, 0.18));
+    border-color: rgba(255, 196, 0, 0.5);
+}
+
+.reward-day.mega .reward-day-amount { font-size: 16px; }
+.reward-day.mega .reward-coin-icon { font-size: 20px; }
+
+.reward-day.today {
+    background: linear-gradient(160deg, rgba(255, 214, 64, 0.3), rgba(255, 150, 0, 0.18));
+    border-color: #ffd140;
+    box-shadow: 0 0 14px rgba(255, 200, 40, 0.45);
+    transform: translateY(-2px);
+}
+
+.reward-day.claimed { opacity: 0.42; }
+
+.reward-check {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 11px;
+    font-weight: 900;
+    color: #2ed573;
+}
+
+.daily-reward-footer {
+    margin-top: 14px;
+    text-align: center;
+}
+
+.daily-note {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+.daily-timer {
+    display: block;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-accent);
+    letter-spacing: 1px;
+    min-height: 18px;
+}
+
+.claim-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    border-radius: 16px;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+    color: #3a2400;
+    background: linear-gradient(180deg, #ffe27a, #ffb302);
+    box-shadow: 0 6px 18px rgba(255, 170, 0, 0.4);
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.claim-btn:active { transform: scale(0.97); }
+
+.claim-btn:disabled,
+.claim-btn.claimed-state {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+[data-theme="day"] .claim-btn:disabled,
+[data-theme="day"] .claim-btn.claimed-state {
+    background: rgba(15, 23, 42, 0.08);
+}
+
+.reward-burst {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.reward-burst.burst-play {
+    animation: burstUp 1.15s ease-out forwards;
+}
+
+@keyframes burstUp {
+    0%   { opacity: 0; transform: translateY(20px) scale(0.6); }
+    25%  { opacity: 1; transform: translateY(0) scale(1.15); }
+    70%  { opacity: 1; transform: translateY(-24px) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(0.9); }
+}
+
+/* ==========================================================================
+   SECTION 4: THEME PICKER
+   ========================================================================== */
+.theme-group-title {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin: 14px 2px 8px 2px;
+}
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+}
+
+.theme-grid.board-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.theme-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+[data-theme="day"] .theme-card {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+.theme-card:active { transform: scale(0.96); }
+
+.theme-card.selected {
+    border-color: var(--text-accent);
+    background: rgba(0, 242, 254, 0.13);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+}
+
+.theme-tick {
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--text-accent);
+    opacity: 0;
+}
+
+.theme-card.selected .theme-tick { opacity: 1; }
+
+.theme-card-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--text-white);
+}
+
+.theme-card-desc {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.theme-card-preview {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    height: 36px;
+}
+
+/* Preview goti (setup panel wali .goti class ko reuse karti hai) */
+.token-preview {
+    width: 20px;
+    height: 28px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    border: none !important;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+
+.board-mini {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+}
+
+.board-mini span { border-radius: 3px; display: block; }
+
+.board-mini-midnight { background: #10142a; border-color: #2c3566; }
+.board-mini-wood     { background: #f3e2c7; border-color: #b98b52; }
+.board-mini-candy    { background: #fff4fa; border-color: #f7c6dd; }
+.board-mini-ocean    { background: #eaf6fb; border-color: #9fd3e6; }
+
+/* ==========================================================================
+   SECTION 5: LUDO BOARD THEMES (board.css sirf var() padhta hai)
+   ========================================================================== */
+[data-board-theme="midnight"] .board-container {
+    --bd-bg: #141a33;
+    --bd-frame: #2b3566;
+    --bd-cell: #1b2242;
+    --bd-inner: #1b2242;
+    --bd-line: #3b4785;
+    --bd-star: #ffd166;
+    --bd-red: #ff4d6d;      --bd-red-lite: #ff90a5;
+    --bd-green: #22d3a6;    --bd-green-lite: #7defd0;
+    --bd-yellow: #ffd166;   --bd-yellow-lite: #ffe9b3;
+    --bd-blue: #4d8dff;     --bd-blue-lite: #9dc0ff;
+    --bd-slot-red: #4a2434; --bd-slot-green: #14453c;
+    --bd-slot-yellow: #4a3d1c; --bd-slot-blue: #1e3357;
+}
+
+[data-board-theme="wood"] .board-container {
+    --bd-bg: #f7ecd8;
+    --bd-frame: #a9793f;
+    --bd-cell: #f7ecd8;
+    --bd-inner: #fdf6e9;
+    --bd-line: #8a5f2b;
+    --bd-star: #6b4318;
+    --bd-red: #b4442f;      --bd-red-lite: #dd7b64;
+    --bd-green: #4f7a3a;    --bd-green-lite: #86b06d;
+    --bd-yellow: #d99b34;   --bd-yellow-lite: #f0c377;
+    --bd-blue: #3a6a86;     --bd-blue-lite: #77a6bd;
+    --bd-slot-red: #f0d3cb; --bd-slot-green: #dbe7d2;
+    --bd-slot-yellow: #f6e6c8; --bd-slot-blue: #d4e3ea;
+}
+
+[data-board-theme="candy"] .board-container {
+    --bd-bg: #fffafd;
+    --bd-frame: #ffd0e4;
+    --bd-cell: #fffafd;
+    --bd-inner: #fff5fa;
+    --bd-line: #e59ec0;
+    --bd-star: #b3557f;
+    --bd-red: #ff7aa2;      --bd-red-lite: #ffb3c9;
+    --bd-green: #7ee3a6;    --bd-green-lite: #b6f3ce;
+    --bd-yellow: #ffd98e;   --bd-yellow-lite: #ffecc4;
+    --bd-blue: #8fb8ff;     --bd-blue-lite: #c2d8ff;
+    --bd-slot-red: #ffe1eb; --bd-slot-green: #e2fbee;
+    --bd-slot-yellow: #fff3dc; --bd-slot-blue: #e6efff;
+}
+
+[data-board-theme="ocean"] .board-container {
+    --bd-bg: #f2fbff;
+    --bd-frame: #b9e2f2;
+    --bd-cell: #f2fbff;
+    --bd-inner: #ffffff;
+    --bd-line: #4a7f96;
+    --bd-star: #14556b;
+    --bd-red: #ef476f;      --bd-red-lite: #f88ba6;
+    --bd-green: #06d6a0;    --bd-green-lite: #6cf0cb;
+    --bd-yellow: #ffd166;   --bd-yellow-lite: #ffe6ad;
+    --bd-blue: #118ab2;     --bd-blue-lite: #62bdd9;
+    --bd-slot-red: #fbdae2; --bd-slot-green: #d3f7ee;
+    --bd-slot-yellow: #fff1d3; --bd-slot-blue: #d5ecf4;
+}
+
+/* Chhote phone par quick row thoda compact */
+@media screen and (max-height: 700px) {
+    #quick-actions-row { margin-top: 6px; }
+    .quick-btn { padding: 6px 11px; font-size: 11px; }
+}

@@ -1,0 +1,294 @@
+/* ==========================================================================
+   SECTION 1: SETUP PANEL GOTI SELECTION
+   ========================================================================== */
+.goti-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 10px;
+    border-radius: 14px;
+}
+
+.goti { 
+    width: 35px; 
+    height: 50px; 
+    cursor: pointer; 
+    border: 2px solid transparent; 
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.goti.red    { background-image: url('../assets/image/red-pawn.png'); }
+.goti.green  { background-image: url('../assets/image/green-pawn.png'); }
+.goti.yellow { background-image: url('../assets/image/yellow-pawn.png'); }
+.goti.blue   { background-image: url('../assets/image/blue-pawn.png'); }
+
+.goti.active { 
+    transform: scale(1.18); 
+    filter: drop-shadow(0 0 8px #ffffff);
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+}
+
+/* ==========================================================================
+   SECTION 2: CELL MULTI-TOKEN QUADRANT GRID LAYOUT (1, 2, 3, 4 TOKENS)
+   ========================================================================== */
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-sizing: border-box;
+    padding: 1px;
+}
+
+.cell[data-tokens="2"] {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-evenly !important;
+    align-items: center !important;
+}
+
+.cell[data-tokens="3"],
+.cell[data-tokens="4"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    place-items: center !important;
+    padding: 1px !important;
+}
+
+/* ==========================================================================
+   SECTION 3: GOTI SIZING & BASE POSITIONING
+   ========================================================================== */
+.goti-piece {
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1.5px 3px rgba(0, 0, 0, 0.5));
+    transition: transform 0.2s ease, filter 0.2s ease;
+    z-index: 10;
+    margin: 0 !important;
+}
+
+/* FIX: pawn art top-heavy hai (upar gol sar, niche patla base), isliye
+   bounding-box ka geometric center box ke center par rakhne se goti "upar
+   chadhi hui" dikhti thi. Thoda neeche shift karke goti ka asli "ground
+   touch point" box ke center par laate hain - professional standing-piece
+   look ke liye. Sirf board cells aur base-slots par (home-triangle ka apna
+   alag layout hai, use disturb nahi karte). */
+.cell .goti-piece,
+.token-slot .goti-piece {
+    transform: translateY(11%);
+}
+
+.token-slot .goti-piece {
+    width: 20px !important;
+    height: 26px !important;
+}
+
+.cell[data-tokens="1"] .goti-piece {
+    width: 16px !important;
+    height: 22px !important;
+}
+
+.cell[data-tokens="2"] .goti-piece {
+    width: 10px !important;
+    height: 15px !important;
+}
+
+.cell[data-tokens="3"] .goti-piece,
+.cell[data-tokens="4"] .goti-piece {
+    width: 8px !important;
+    height: 12px !important;
+}
+
+.piece-red    { background-image: url('../assets/image/red-pawn.png'); }
+.piece-green  { background-image: url('../assets/image/green-pawn.png'); }
+.piece-yellow { background-image: url('../assets/image/yellow-pawn.png'); }
+.piece-blue   { background-image: url('../assets/image/blue-pawn.png'); }
+
+/* ==========================================================================
+   SECTION 4A: HAR GOTI KE NICHE PERMANENT 3D BASE (grounding shadow disc)
+   --------------------------------------------------------------------------
+   Har goti (movable ho ya na ho) ke neeche ek chhota 3D elliptical base -
+   isse lagta hai goti zameen par khadi hai, hawa me float nahi kar rahi.
+   ========================================================================== */
+.goti-piece::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 4%;
+    width: 82%;
+    height: 32%;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -2;
+    transform: translateX(-50%) perspective(20px) rotateX(55deg);
+    background: radial-gradient(ellipse at 50% 40%,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(0, 0, 0, 0.18) 55%,
+        rgba(0, 0, 0, 0) 78%);
+}
+
+/* ==========================================================================
+   SECTION 4B: MOVABLE TOKEN - 3D GHOOMTI HUI (SPINNING) HIGHLIGHT RING
+   --------------------------------------------------------------------------
+   Movable goti ke base wali shadow ko ek roshan, 3D-tilt wali spinning disc
+   se replace karte hain (perspective + rotateX se flat-ellipse look, upar
+   ek conic-gradient continuously ghoomta hai jaise sikka zameen par ghoom
+   raha ho) - "goti ke peeche se ghoom kar aata circle" wala effect.
+   ========================================================================== */
+.goti-piece.token-movable {
+    position: relative;
+    z-index: 40 !important;
+    --ring-w: 20px;
+    --ring-color: 255, 205, 55;
+    animation: tokenMovableGlow 1.1s ease-in-out infinite alternate;
+    will-change: filter;
+}
+
+/* Movable hone par neutral base shadow ko halke golden halo se replace karo */
+.goti-piece.token-movable::before {
+    width: var(--ring-w);
+    height: calc(var(--ring-w) * 0.5);
+    bottom: -8%;
+    background: radial-gradient(ellipse at 50% 45%,
+        rgba(var(--ring-color), 0.6) 0%,
+        rgba(var(--ring-color), 0.28) 45%,
+        rgba(var(--ring-color), 0) 72%);
+    animation: tokenRingHalo 1.1s ease-in-out infinite alternate;
+}
+
+/* Layer: 3D tilt wali ghoomti hui ring - asli "spinning disc" effect,
+   conic-gradient se ek chamak goti ke peeche continuously chakkar lagati hai */
+.goti-piece.token-movable::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -8%;
+    width: var(--ring-w);
+    height: calc(var(--ring-w) * 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    transform: translateX(-50%) perspective(24px) rotateX(58deg);
+    background: conic-gradient(from var(--spin-angle, 0deg),
+        rgba(255, 255, 255, 0.95) 0deg,
+        rgba(var(--ring-color), 0.95) 45deg,
+        rgba(var(--ring-color), 0.12) 130deg,
+        rgba(var(--ring-color), 0) 195deg,
+        rgba(var(--ring-color), 0.12) 260deg,
+        rgba(var(--ring-color), 0.95) 315deg,
+        rgba(255, 255, 255, 0.95) 360deg);
+    box-shadow:
+        0 0 6px rgba(var(--ring-color), 0.7),
+        inset 0 0 3px rgba(255, 255, 255, 0.5);
+    animation: tokenRingSpin 1.6s linear infinite;
+}
+
+/* Har context ke liye sirf ring ki chaudai badalti hai */
+.token-slot .goti-piece.token-movable                  { --ring-w: 24px; }
+.cell[data-tokens="1"] .goti-piece.token-movable       { --ring-w: 18px; }
+.cell[data-tokens="2"] .goti-piece.token-movable       { --ring-w: 13px; }
+.cell[data-tokens="3"] .goti-piece.token-movable,
+.cell[data-tokens="4"] .goti-piece.token-movable       { --ring-w: 11px; }
+
+/* Rangeen cells (path / base) par ring safed rahe to contrast behtar dikhta hai */
+.cell-path-red .goti-piece.token-movable,
+.cell-path-green .goti-piece.token-movable,
+.cell-path-blue .goti-piece.token-movable {
+    --ring-color: 255, 255, 255;
+}
+
+/* ==========================================================================
+   SECTION 5: ANIMATIONS
+   ========================================================================== */
+@keyframes tokenMovableGlow {
+    from {
+        filter: drop-shadow(0 1.5px 3px rgba(0, 0, 0, 0.55)) brightness(1);
+    }
+    to {
+        filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.9))
+                drop-shadow(0 1.5px 3px rgba(0, 0, 0, 0.45))
+                brightness(1.14);
+    }
+}
+
+/* FIX: 3D "sikka zameen par ghoom raha hai" wala spinning-disc effect.
+   rotate() ko translateX ke baad chain karne se ellipse apni jagah center
+   me rehte hue hi ghoomti hai (koi jump/drift nahi hota). */
+@keyframes tokenRingSpin {
+    from { transform: translateX(-50%) perspective(24px) rotateX(58deg) rotate(0deg); }
+    to   { transform: translateX(-50%) perspective(24px) rotateX(58deg) rotate(360deg); }
+}
+
+@keyframes tokenRingHalo {
+    from { transform: translateX(-50%) scale(0.8);  opacity: 0.5; }
+    to   { transform: translateX(-50%) scale(1.25); opacity: 0.95; }
+}
+
+/* Accessibility: reduced motion par sirf sthir ring dikhegi */
+@media (prefers-reduced-motion: reduce) {
+    .goti-piece.token-movable,
+    .goti-piece.token-movable::before,
+    .goti-piece.token-movable::after {
+        animation: none !important;
+    }
+    .goti-piece.token-movable {
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.9));
+    }
+}
+
+/* ==========================================================================
+   SECTION 6: GHAR (HOME TRIANGLE) GOTI DISPLAY & VISIBILITY
+   ========================================================================== */
+.home-triangle {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 2px !important;
+    z-index: 15 !important;
+}
+
+.triangle-yellow {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    padding-top: 6px !important;
+}
+
+.triangle-red {
+    flex-direction: row !important;
+    align-items: flex-end !important;
+    padding-bottom: 6px !important;
+}
+
+.triangle-green {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding-left: 6px !important;
+}
+
+.triangle-blue {
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    padding-right: 6px !important;
+}
+
+.home-triangle .goti-piece {
+    width: 14px !important;
+    height: 19px !important;
+    display: block !important;
+    z-index: 30 !important;
+    margin: 1px !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) brightness(1.1) !important;
+    pointer-events: none !important;
+}

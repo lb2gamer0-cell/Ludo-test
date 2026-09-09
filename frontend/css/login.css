@@ -1,0 +1,498 @@
+:root[data-theme="dark"], :root[data-theme="night"] {
+    --bg-base: #060911;
+    --overlay-color: rgba(6, 9, 17, 0.72);
+    
+    --card-glass: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.24);
+    --card-shadow: 0 25px 50px rgba(0, 0, 0, 0.75);
+    --card-specular: inset 0 1.5px 1.5px rgba(255, 255, 255, 0.5), inset 0 -1.5px 1.5px rgba(0, 0, 0, 0.4);
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.6);
+
+    --dice-core: #e2e5ef;
+    --dice-front: #ffffff;
+    --dice-back: #d7dce8;
+    --dice-top: #f7f9fd;
+    --dice-bottom: #c6ccd9;
+    --dice-left: #e3e7f2;
+    --dice-right: #dce1ee;
+    --dice-border: rgba(0, 0, 0, 0.1);
+    --pip-color: #171c26;
+    --pip-center-red: #ff334b;
+    --pip-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+
+    --btn-gmail-bg: rgba(234, 67, 53, 0.18);
+    --btn-gmail-border: rgba(255, 95, 85, 0.55);
+    --btn-gmail-text: #ffffff;
+    --btn-gmail-icon: #ff5252;
+
+    --btn-fb-bg: rgba(24, 119, 242, 0.18);
+    --btn-fb-border: rgba(90, 160, 255, 0.55);
+    --btn-fb-text: #ffffff;
+    --btn-fb-icon: #40a0ff;
+
+    --btn-guest-bg: rgba(0, 230, 118, 0.22);
+    --btn-guest-border: rgba(95, 255, 170, 0.65);
+    --btn-guest-text: #ffffff;
+    --btn-guest-icon: #00e676;
+
+    --toast-bg: rgba(15, 20, 30, 0.95);
+    --toast-text: #ffffff;
+}
+
+:root[data-theme="light"], :root[data-theme="day"] {
+    --bg-base: #dfe7f2;
+    --overlay-color: rgba(235, 242, 250, 0.65);
+
+    --card-glass: rgba(255, 255, 255, 0.42);
+    --card-border: rgba(255, 255, 255, 0.85);
+    --card-shadow: 0 25px 45px rgba(20, 35, 60, 0.14);
+    --card-specular: inset 0 2px 2px rgba(255, 255, 255, 0.95), inset 0 -2px 2px rgba(0, 0, 0, 0.04);
+    --text-main: #0f172a;
+    --text-muted: #334155;
+
+    --dice-core: #12151d;
+    --dice-front: #1c202a;
+    --dice-back: #10131b;
+    --dice-top: #252b39;
+    --dice-bottom: #0b0d13;
+    --dice-left: #181c25;
+    --dice-right: #151821;
+    --dice-border: rgba(255, 255, 255, 0.15);
+    --pip-color: #ffffff;
+    --pip-center-red: #ff4757;
+    --pip-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 1px 3px rgba(0, 0, 0, 0.6);
+
+    --btn-gmail-bg: rgba(239, 68, 68, 0.14);
+    --btn-gmail-border: rgba(220, 38, 38, 0.45);
+    --btn-gmail-text: #b91c1c;
+    --btn-gmail-icon: #dc2626;
+
+    --btn-fb-bg: rgba(37, 99, 235, 0.14);
+    --btn-fb-border: rgba(29, 78, 216, 0.45);
+    --btn-fb-text: #1d4ed8;
+    --btn-fb-icon: #2563eb;
+
+    --btn-guest-bg: rgba(16, 185, 129, 0.2);
+    --btn-guest-border: rgba(5, 150, 105, 0.55);
+    --btn-guest-text: #065f46;
+    --btn-guest-icon: #059669;
+
+    --toast-bg: rgba(255, 255, 255, 0.95);
+    --toast-text: #0f172a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Fredoka', sans-serif;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+    background-color: var(--bg-base);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.ludo-board-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../assets/image/ludo-board.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.bg-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--overlay-color);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.ludo-grid-board {
+    width: 600px;
+    height: 600px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    transform: rotate(45deg);
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.quad {
+    border-radius: 30px;
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.red-base    { background: #ff2a44; }
+.green-base  { background: #00e676; }
+.yellow-base { background: #ffea00; }
+.blue-base   { background: #00b0ff; }
+
+.pocket {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+}
+
+.theme-switch-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 60;
+}
+
+.theme-toggle-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--card-border);
+    background: var(--card-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.9);
+}
+
+[data-theme="dark"] .sun-icon, [data-theme="night"] .sun-icon { display: block; color: #ffea00; }
+[data-theme="dark"] .moon-icon, [data-theme="night"] .moon-icon { display: none; }
+
+[data-theme="light"] .sun-icon, [data-theme="day"] .sun-icon { display: none; }
+[data-theme="light"] .moon-icon, [data-theme="day"] .moon-icon { display: block; color: #334155; }
+
+.login-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 380px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+}
+
+.glass-card {
+    width: 100%;
+    background: var(--card-glass);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1.5px solid var(--card-border);
+    border-radius: 34px;
+    padding: 24px 22px;
+    box-shadow: var(--card-shadow), var(--card-specular);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    transform: none;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 38%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 34px 34px 0 0;
+    pointer-events: none;
+}
+
+.logo-box {
+    text-align: center;
+}
+
+.logo-img {
+    max-width: 110px;
+    height: auto;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+}
+
+.logo-text {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: 2px;
+}
+
+.gold-accent {
+    color: #ffea00;
+    background: linear-gradient(135deg, #ffea00, #ff8800);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.dice-stage {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.dice-scene {
+    width: 80px;
+    height: 80px;
+    perspective: 900px;
+    cursor: grab;
+    touch-action: none;
+    animation: diceHover 3.5s ease-in-out infinite alternate;
+}
+
+.dice-scene:active {
+    cursor: grabbing;
+}
+
+@keyframes diceHover {
+    0%   { transform: translate3d(0, 5px, 0); }
+    100% { transform: translate3d(0, -8px, 0); }
+}
+
+.cube-3d {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.core-face {
+    position: absolute;
+    width: 79px;
+    height: 79px;
+    background: var(--dice-core);
+    border-radius: 6px;
+    backface-visibility: hidden;
+}
+
+.c-front  { transform: rotateY(0deg) translateZ(39px); }
+.c-back   { transform: rotateY(180deg) translateZ(39px); }
+.c-top    { transform: rotateX(90deg) translateZ(39px); }
+.c-bottom { transform: rotateX(-90deg) translateZ(39px); }
+.c-left   { transform: rotateY(-90deg) translateZ(39px); }
+.c-right  { transform: rotateY(90deg) translateZ(39px); }
+
+.face {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 9px;
+    border: 1px solid var(--dice-border);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    place-items: center;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.12);
+}
+
+.face.front  { background: var(--dice-front);  transform: rotateY(0deg) translateZ(40px); }
+.face.back   { background: var(--dice-back);   transform: rotateY(180deg) translateZ(40px); }
+.face.top    { background: var(--dice-top);    transform: rotateX(90deg) translateZ(40px); }
+.face.bottom { background: var(--dice-bottom); transform: rotateX(-90deg) translateZ(40px); }
+.face.left   { background: var(--dice-left);   transform: rotateY(-90deg) translateZ(40px); }
+.face.right  { background: var(--dice-right);  transform: rotateY(90deg) translateZ(40px); }
+
+.pip {
+    width: 12px;
+    height: 12px;
+    background: var(--pip-color);
+    border-radius: 50%;
+    box-shadow: var(--pip-shadow);
+}
+
+.pip.red-dot {
+    width: 20px;
+    height: 20px;
+    background: var(--pip-center-red);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35), 0 0 8px rgba(255, 51, 75, 0.6);
+}
+
+.pip-mid { grid-area: 2 / 2; }
+.pip-tl  { grid-area: 1 / 1; }
+.pip-tr  { grid-area: 1 / 3; }
+.pip-ml  { grid-area: 2 / 1; }
+.pip-mr  { grid-area: 2 / 3; }
+.pip-bl  { grid-area: 3 / 1; }
+.pip-br  { grid-area: 3 / 3; }
+
+.dice-shadow {
+    width: 70px;
+    height: 15px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+    margin-top: 16px;
+    filter: blur(6px);
+    animation: shadowPulse 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes shadowPulse {
+    0%   { transform: scale(1.1); opacity: 0.45; }
+    100% { transform: scale(0.8); opacity: 0.2; }
+}
+
+.drag-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.actions-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.social-row {
+    display: flex;
+    gap: 11px;
+    width: 100%;
+}
+
+.morph-btn {
+    position: relative;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 18px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: transform 0.12s ease-out;
+    box-shadow: 
+        0 6px 18px rgba(0, 0, 0, 0.18),
+        inset 0 1.5px 1.5px rgba(255, 255, 255, 0.65),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.15);
+}
+
+.glare {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translate3d(-160%, 0, 0) skewX(-25deg);
+    transition: transform 0.55s ease;
+    pointer-events: none;
+}
+
+.morph-btn:hover .glare {
+    transform: translate3d(260%, 0, 0) skewX(-25deg);
+}
+
+.morph-btn:active {
+    transform: translate3d(0, 2.5px, 0) scale(0.97);
+}
+
+.btn-gmail {
+    flex: 1;
+    height: 40px;
+    background: var(--btn-gmail-bg);
+    border: 1.5px solid var(--btn-gmail-border);
+    color: var(--btn-gmail-text);
+}
+.btn-gmail i {
+    color: var(--btn-gmail-icon);
+    font-size: 1.15rem;
+}
+
+.btn-fb {
+    flex: 1;
+    height: 40px;
+    background: var(--btn-fb-bg);
+    border: 1.5px solid var(--btn-fb-border);
+    color: var(--btn-fb-text);
+}
+.btn-fb i {
+    color: var(--btn-fb-icon);
+    font-size: 1.15rem;
+}
+
+.btn-guest {
+    width: 100%;
+    height: 42px;
+    font-size: 1.05rem;
+    background: var(--btn-guest-bg);
+    border: 1.8px solid var(--btn-guest-border);
+    color: var(--btn-guest-text);
+}
+.btn-guest i {
+    color: var(--btn-guest-icon);
+    font-size: 1.25rem;
+}
+
+.footer-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'Outfit', sans-serif;
+}
+
+.toast {
+    position: fixed;
+    bottom: 25px;
+    background: var(--toast-bg);
+    border: 1.5px solid var(--card-border);
+    color: var(--toast-text);
+    padding: 11px 20px;
+    border-radius: 28px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    transform: translate3d(0, 90px, 0);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.28s ease;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.toast.active {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+}

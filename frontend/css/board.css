@@ -1,0 +1,274 @@
+/* ==========================================================================
+   SECTION 1: BOARD CONTAINER & CORNER BASES
+   ========================================================================== */
+.board-container {
+    width: 100%;
+    max-width: min(100%, 62vh);
+    aspect-ratio: 1 / 1;
+    background: var(--bd-bg, #ffffff);
+    border-radius: 16px;
+    border: 4px solid var(--bd-frame, #ffffff);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    display: grid;
+    grid-template-columns: 40% 20% 40%;
+    grid-template-rows: 40% 20% 40%;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Four Corner Bases */
+.ludo-base {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8%;
+    transition: background-color 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.base-green  { background-color: var(--bd-green,  #00a651); grid-area: 1 / 1 / 2 / 2; }
+.base-yellow { background-color: var(--bd-yellow, #ffc20e); grid-area: 1 / 3 / 2 / 4; }
+.base-red    { background-color: var(--bd-red,    #e52521); grid-area: 3 / 1 / 4 / 2; }
+.base-blue   { background-color: var(--bd-blue,   #0072ce); grid-area: 3 / 3 / 4 / 4; }
+
+/* ==========================================================================
+   SECTION 2: CLEAN IN-BOUNDARY BASE BLINK
+   ========================================================================== */
+.ludo-base.active-base-turn {
+    z-index: 2;
+}
+
+.base-red.active-base-turn {
+    animation: redCleanBlink 0.85s infinite alternate ease-in-out;
+}
+@keyframes redCleanBlink {
+    0%   { background-color: var(--bd-red, #e52521); }
+    50%  { background-color: var(--bd-red-lite, #ff6b6b); }
+    100% { background-color: var(--bd-red, #e52521); }
+}
+
+.base-green.active-base-turn {
+    animation: greenCleanBlink 0.85s infinite alternate ease-in-out;
+}
+@keyframes greenCleanBlink {
+    0%   { background-color: var(--bd-green, #00a651); }
+    50%  { background-color: var(--bd-green-lite, #2ed573); }
+    100% { background-color: var(--bd-green, #00a651); }
+}
+
+.base-yellow.active-base-turn {
+    animation: yellowCleanBlink 0.85s infinite alternate ease-in-out;
+}
+@keyframes yellowCleanBlink {
+    0%   { background-color: var(--bd-yellow, #ffc20e); }
+    50%  { background-color: var(--bd-yellow-lite, #ffeaa7); }
+    100% { background-color: var(--bd-yellow, #ffc20e); }
+}
+
+.base-blue.active-base-turn {
+    animation: blueCleanBlink 0.85s infinite alternate ease-in-out;
+}
+@keyframes blueCleanBlink {
+    0%   { background-color: var(--bd-blue, #0072ce); }
+    50%  { background-color: var(--bd-blue-lite, #54a0ff); }
+    100% { background-color: var(--bd-blue, #0072ce); }
+}
+
+/* Inner White Box */
+.inner-white-box {
+    background: var(--bd-inner, #ffffff) !important;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    place-items: center;
+    padding: 10%;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+    border: none !important;
+    filter: none !important;
+    box-sizing: border-box;
+}
+
+.token-slot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible !important;
+}
+
+.slot-green  { background: var(--bd-slot-green,  #ccefdc); }
+.slot-yellow { background: var(--bd-slot-yellow, #fff3cc); }
+.slot-red    { background: var(--bd-slot-red,    #faccce); }
+.slot-blue   { background: var(--bd-slot-blue,   #cce3f5); }
+
+/* ==========================================================================
+   SECTION 3: TRACKS & BOARD CELLS
+   ========================================================================== */
+.track { background: var(--bd-cell, #ffffff); display: grid; }
+.track-vertical { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(6, 1fr); }
+.track-horizontal { grid-template-rows: repeat(3, 1fr); grid-template-columns: repeat(6, 1fr); }
+
+.track-top    { grid-area: 1 / 2 / 2 / 3; }
+.track-left   { grid-area: 2 / 1 / 3 / 2; }
+.track-right  { grid-area: 2 / 3 / 3 / 4; }
+.track-bottom { grid-area: 3 / 2 / 4 / 3; }
+
+.cell {
+    border: 1px solid var(--bd-line, #111111);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: var(--bd-cell, #ffffff);
+    min-width: 0 !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    box-sizing: border-box;
+}
+
+.cell-path-green  { background-color: var(--bd-green,  #00a651) !important; }
+.cell-path-yellow { background-color: var(--bd-yellow, #ffc20e) !important; }
+.cell-path-red    { background-color: var(--bd-red,    #e52521) !important; }
+.cell-path-blue   { background-color: var(--bd-blue,   #0072ce) !important; }
+
+.cell-star::after {
+    content: "★";
+    font-size: 14px;
+    color: var(--bd-star, #2c3e50);
+    position: absolute;
+    pointer-events: none;
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   SECTION 4: CENTER HOME TRIANGLES
+   ========================================================================== */
+.center-home {
+    grid-area: 2 / 2 / 3 / 3;
+    border: 1px solid var(--bd-line, #111111);
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.home-triangle {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 5;
+}
+
+.triangle-yellow { background: var(--bd-yellow, #ffc20e); clip-path: polygon(0 0, 100% 0, 50% 50%); align-items: flex-start; padding-top: 4px; }
+.triangle-blue   { background: var(--bd-blue, #0072ce); clip-path: polygon(100% 0, 100% 100%, 50% 50%); justify-content: flex-end; padding-right: 4px; }
+.triangle-red    { background: var(--bd-red, #e52521); clip-path: polygon(0 100%, 100% 100%, 50% 50%); align-items: flex-end; padding-bottom: 4px; }
+.triangle-green  { background: var(--bd-green, #00a651); clip-path: polygon(0 0, 0 100%, 50% 50%); justify-content: flex-start; padding-left: 4px; }
+
+.player-card.disabled-player { opacity: 0.2; pointer-events: none; filter: grayscale(100%); }
+
+/* ==========================================================================
+   SECTION 5: COMPACT 3D DICE & PIP STRUCTURE
+   ========================================================================== */
+.dice-scene {
+    width: 34px;
+    height: 34px;
+    perspective: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    flex-shrink: 0;
+}
+
+.player-card.active-turn .dice-scene {
+    border-color: #ffd700;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.cube {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: translateZ(-15px) rotateX(0deg) rotateY(0deg);
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cube.rolling {
+    animation: rollDiceAnim 0.6s infinite linear;
+}
+
+@keyframes rollDiceAnim {
+    0%   { transform: translateZ(-15px) rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+    100% { transform: translateZ(-15px) rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+}
+
+.cube__face {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 35% 35%, #ffeaa7, #fdcb6e 50%, #d69e2e 85%, #b7791f 100%);
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.35), 0 1.5px 3px rgba(0, 0, 0, 0.25);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+.cube__face--1 { transform: rotateY(  0deg) translateZ(15px); }
+.cube__face--2 { transform: rotateY( 90deg) translateZ(15px); }
+.cube__face--3 { transform: rotateX(-90deg) translateZ(15px); }
+.cube__face--4 { transform: rotateX( 90deg) translateZ(15px); }
+.cube__face--5 { transform: rotateY(-90deg) translateZ(15px); }
+.cube__face--6 { transform: rotateY(180deg) translateZ(15px); }
+
+.pip {
+    width: 4.5px;
+    height: 4.5px;
+    background: radial-gradient(circle at 30% 30%, #333333, #000000);
+    border-radius: 50%;
+    margin: auto;
+}
+
+.cube__face--1 .pip:nth-child(1) { grid-area: 2 / 2; }
+.cube__face--2 .pip:nth-child(1) { grid-area: 1 / 1; }
+.cube__face--2 .pip:nth-child(2) { grid-area: 3 / 3; }
+.cube__face--3 .pip:nth-child(1) { grid-area: 1 / 1; }
+.cube__face--3 .pip:nth-child(2) { grid-area: 2 / 2; }
+.cube__face--3 .pip:nth-child(3) { grid-area: 3 / 3; }
+.cube__face--4 .pip:nth-child(1) { grid-area: 1 / 1; }
+.cube__face--4 .pip:nth-child(2) { grid-area: 1 / 3; }
+.cube__face--4 .pip:nth-child(3) { grid-area: 3 / 1; }
+.cube__face--4 .pip:nth-child(4) { grid-area: 3 / 3; }
+.cube__face--5 .pip:nth-child(1) { grid-area: 1 / 1; }
+.cube__face--5 .pip:nth-child(2) { grid-area: 1 / 3; }
+.cube__face--5 .pip:nth-child(3) { grid-area: 2 / 2; }
+.cube__face--5 .pip:nth-child(4) { grid-area: 3 / 1; }
+.cube__face--5 .pip:nth-child(5) { grid-area: 3 / 3; }
+.cube__face--6 .pip:nth-child(1) { grid-area: 1 / 1; }
+.cube__face--6 .pip:nth-child(2) { grid-area: 2 / 1; }
+.cube__face--6 .pip:nth-child(3) { grid-area: 3 / 1; }
+.cube__face--6 .pip:nth-child(4) { grid-area: 1 / 3; }
+.cube__face--6 .pip:nth-child(5) { grid-area: 2 / 3; }
+.cube__face--6 .pip:nth-child(6) { grid-area: 3 / 3; }
