@@ -12,7 +12,7 @@ function getBackendUrl() {
     // Production: Firebase Hosting → Render Backend
     if (window.location.hostname.includes('web.app') || 
         window.location.hostname.includes('firebaseapp.com')) {
-        return 'https://your-app-name.onrender.com'; // ← CHANGE THIS TO YOUR RENDER URL
+        return 'https://ludo-game-cojp.onrender.com'; // ← CHANGE THIS TO YOUR RENDER URL
     }
     
     // Local development
