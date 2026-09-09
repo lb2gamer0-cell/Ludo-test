@@ -322,12 +322,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // session yet, complete the login from here instead of leaving the
         // login screen stuck.
         auth.onAuthStateChanged(user => {
-            if (user && !oauthHandled && !localStorage.getItem('currentUser')) {
-                oauthHandled = true;
-                const providerName = resolveProviderName(user);
-                handleSocialResult({ user, credential: null }, providerName, providerName === 'Google' ? 1 : 3);
-            }
-        });
+  if (user && !oauthHandled) {
+    oauthHandled = true;
+    const uData = {
+      uid: user.uid,
+      name: user.displayName || 'Player',
+      email: user.email,
+      avatar: user.photoURL || ''
+    };
+    localStorage.setItem('currentUser', JSON.stringify(uData));
+    localStorage.setItem('ludo_user', JSON.stringify(uData));
+    window.location.replace('game.html');
+  }
+});
+
     }
 
     if (gmailBtn) gmailBtn.addEventListener('click', () => startSocialLogin(googleProvider, gmailBtn, 'Google', 1));
