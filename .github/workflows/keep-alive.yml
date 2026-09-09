@@ -11,15 +11,23 @@ name: Keep Render Backend Alive
 
 on:
   schedule:
-    - cron: '*/10 * * * *'   # every 10 minutes
-  workflow_dispatch: {}       # lets you trigger it manually from the Actions tab
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping backend /ping endpoint
+      - name: Ping backend endpoint
         run: |
-          curl -sS -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
-            --max-time 45 \
-            "https://ludo-game-cojp.onrender.com/ping"
+          echo "Pinging Render server..."
+          # Pehle /ping ko check karega, agar 404 ya fail hua toh base URL ko wake karega
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 "https://ludo-game-cojp.onrender.com/ping" || echo "000")
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Ping route returned $HTTP_STATUS, waking base URL directly..."
+            curl -s -o /dev/null -w "Base URL HTTP: %{http_code}\n" --max-time 45 "https://ludo-game-cojp.onrender.com" || true
+          else
+            echo "Server is awake and healthy (HTTP 200)!"
+          fi
+
