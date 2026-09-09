@@ -12,12 +12,12 @@ function getBackendUrl() {
     
     // Local development
     if (window.location.port && window.location.port !== '3000') {
-        return 'http://localhost:3000';
+        return 'https://ludo-game-cojp.onrender.com';
     }
     if (window.location.origin && !window.location.origin.includes('file://')) {
         return window.location.origin;
     }
-    return 'http://localhost:3000';
+    return 'https://ludo-game-cojp.onrender.com';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
