@@ -1,1 +1,25 @@
+name: Keep Render Backend Alive
 
+# FIX: external, independent backup for the in-process self-ping worker in
+# backend/Server.js. This runs OUTSIDE Render, so it also wakes the service
+# back up if it ever fully spins down before the internal pinger gets a
+# chance to fire (e.g. right after a deploy, or if the process restarted).
+#
+# GitHub's schedule can be delayed by a few minutes under load, so this is
+# intentionally set to run every 10 minutes (well inside Render's 15-minute
+# free-tier spin-down window) rather than relying on exact timing.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # every 10 minutes
+  workflow_dispatch: {}       # lets you trigger it manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend /ping endpoint
+        run: |
+          curl -sS -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" \
+            --max-time 45 \
+            "https://ludo-game-cojp.onrender.com/ping"
