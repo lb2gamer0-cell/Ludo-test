@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <!-- ==========================================================================
+         SECTION 1: HEAD, META & AUTH GUARDS
+         ========================================================================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Prime</title>  
+    
+    <script>
+        if (!localStorage.getItem('currentUser')) {
+            document.documentElement.style.display = 'none';
+            window.location.replace('index.html');
+        }
+
+        function applySystemTheme() {
+            const savedTheme = localStorage.getItem('app_theme') || 'system';
+            if (savedTheme === 'day') {
+                document.documentElement.setAttribute('data-theme', 'day');
+            } else if (savedTheme === 'night') {
+                document.documentElement.setAttribute('data-theme', 'night');
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'night' : 'day');
+            }
+        }
+        applySystemTheme();
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const savedTheme = localStorage.getItem('app_theme') || 'system';
+            if (savedTheme === 'system') {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'night' : 'day');
+            }
+        });
+    </script>  
+
+    <!-- CSS Linked -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/modals-button.css">
+    <link rel="stylesheet" href="css/board.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/extras.css">
+
+    <script>
+        // Goti / board theme ko paint se pehle apply karo (flash na ho)
+        (function () {
+            const gt = localStorage.getItem('goti_theme') || 'classic';
+            const bt = localStorage.getItem('board_theme') || 'classic';
+            document.documentElement.setAttribute('data-token-theme', gt);
+            document.documentElement.setAttribute('data-board-theme', bt);
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- ==========================================================================
+         SECTION 2: DYNAMIC BACKGROUND ORBS
+         ========================================================================== -->
+    <div class="bg-orb-container">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-orb bg-orb-4"></div>
+    </div>
+
+    <div class="app-container">
+        
+        <!-- ==========================================================================
+             SECTION 3: TOP BAR HEADER & WALLET STATS
+             ========================================================================== -->
+        <header class="top-bar" id="main-top-bar">
+            <div class="profile-section" onclick="openProfileMenu()">
+                <div class="avatar" id="main-user-avatar">
+                    <span id="main-avatar-icon">👤</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" id="display-user-name">@player</span>
+                    <span class="user-level" id="display-user-level">Lvl</span>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box">
+                    <svg class="fa-icon coin-icon" viewBox="0 0 512 512"><path d="M0 405.3C0 452.1 91.9 490 205.3 490S410.7 452.1 410.7 405.3v-54.6c-27.1 21.6-80.4 36-141.3 39.7-5.1.3-10.3.5-15.5.5-70.3 0-132.8-21.7-166.7-54.3-19.8-19.1-30.9-42.6-30.9-67.9v-2.3C22.6 281.8 0 316.5 0 357.3v48zm512-149.3c0-46.8-91.9-84.7-205.3-84.7S101.3 209.2 101.3 256v42.7c0 46.8 91.9 84.7 205.3 84.7s205.3-37.9 205.3-84.7V256zm0-106.7c0-46.8-91.9-84.7-205.3-84.7S101.3 102.5 101.3 149.3v42.7c33.9-32.6 96.4-54.3 166.7-54.3 5.2 0 10.4.2 15.5.5 60.9 3.7 114.2 18.1 141.3 39.7v-28.9zM306.7 0C193.3 0 101.3 37.9 101.3 84.7S193.3 169.3 306.7 169.3s205.3-37.9 205.3-84.7S420.1 0 306.7 0z"/></svg>
+                    <span class="stat-count" id="display-user-coins">10000</span>
+                </div>
+                <div class="stat-box">
+                    <svg class="fa-icon diamond-icon" viewBox="0 0 512 512"><path d="M116.85 160h278.3l-50.6-96H167.45l-50.6 96zM464 160h-35.35l49.8-94.62c4.8 9.12 7.55 19.5 7.55 30.62 0 25.13-14.07 47.38-22 64zm-416 0c-7.93-16.62-22-38.87-22-64 0-11.12 2.75-21.5 7.55-30.62L83.35 160H48zm372.5 32H91.5L256 461.5 420.5 192zm-355.2 0l152.2 249.2L42.5 192h22.8zm379.4 0H469.5l-174.7 249.2L444.7 192z"/></svg>
+                    <span class="stat-count" id="display-user-diamonds">99</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- QUICK ACTION ROW: left = Themes, right = Daily Reward -->
+        <div id="quick-actions-row">
+            <button class="quick-btn quick-btn-theme" onclick="openThemeModal()">
+                <span class="quick-emoji">🎨</span>
+                <span>Themes</span>
+            </button>
+            <button class="quick-btn quick-btn-reward" id="btn-daily-reward" onclick="openDailyRewardModal()">
+                <span class="quick-emoji">🎁</span>
+                <span>Daily Reward</span>
+                <span class="quick-dot" id="daily-reward-dot"></span>
+            </button>
+        </div>
+
+        <div class="logo-container" id="main-logo">
+            <h1 class="game-title">LUDO</h1>
+        </div>
+
+        <!-- ==========================================================================
+             SECTION 4: MIDDLE CONTENT AREA (GAME VIEWS)
+             ========================================================================== -->
+        <main id="middle-content">
+            
+            <!-- VIEW 1: MAIN MENU (WITH 100% ORIGINAL 3D SVG BUTTONS) -->
+            <div id="main-menu-view" class="menu-options">
+                <!-- 1. VS COMPUTER -->
+                <button class="liquid-btn btn-computer" onclick="openComputerSetup()">
+                    <svg class="svg-3d-icon icon-computer" viewBox="0 0 76 46">
+                        <defs>
+                            <linearGradient id="phoneFrameC" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fff8cc"/>
+                                <stop offset="30%" stop-color="#000000"/>
+                                <stop offset="100%" stop-color="#92400e"/>
+                            </linearGradient>
+                            <linearGradient id="phoneScreenC" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fef08a"/>
+                                <stop offset="100%" stop-color="#eab308"/>
+                            </linearGradient>
+                            <filter id="iconGlowC" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.45"/>
+                            </filter>
+                        </defs>
+                        <g transform="translate(26, 3)" filter="url(#iconGlowC)">
+                            <rect x="0" y="0" width="24" height="39" rx="5" fill="url(#phoneFrameC)" stroke="#ffffff" stroke-width="1.2"/>
+                            <rect x="9.5" y="2" width="5" height="1.2" rx="0.6" fill="#78350f"/>
+                            <rect x="2.5" y="4.5" width="19" height="31" rx="3" fill="url(#phoneScreenC)"/>
+                            <polygon points="2.5,4.5 14,4.5 5,35.5 2.5,35.5" fill="#ffffff" opacity="0.35"/>
+                            <text x="12" y="23.5" font-family="'Poppins', sans-serif" font-weight="800" font-size="10" fill="#ffffff" stroke="#111827" stroke-width="2" stroke-linejoin="round" text-anchor="middle" paint-order="stroke fill">VS</text>
+                        </g>
+                    </svg>
+                    <span id="txt-mode-computer">Vs Computer</span>
+                </button>
+
+                <!-- 2. FACE TO FACE -->
+                <button class="liquid-btn btn-facetoface" onclick="selectMode('FaceToFace')">
+                    <svg class="svg-3d-icon icon-facetoface" viewBox="0 0 76 46">
+                        <defs>
+                            <linearGradient id="goldPlayerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#fff8cc"/>
+                                <stop offset="35%" stop-color="#f59e0b"/>
+                                <stop offset="100%" stop-color="#b45309"/>
+                            </linearGradient>
+                            <filter id="iconGlowP" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.45"/>
+                            </filter>
+                        </defs>
+                        <g filter="url(#iconGlowP)">
+                            <circle cx="18" cy="11.5" r="5.2" fill="url(#goldPlayerGrad)"/>
+                            <circle cx="14.5" cy="8.5" r="1.8" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 12 19 C 13.5 15, 19 15, 22 18 C 24.5 22, 21.5 30, 15 31.5 C 10.5 31.5, 10.5 25, 12 19 Z" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 17 23 C 21 23, 27 26.5, 28 27.5 C 27 28.5, 21 26.5, 16 26.5" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 13 30.5 C 18 30.5, 26 31.5, 27 29.5 C 28 27.5, 22 26.5, 16 27.5" fill="url(#goldPlayerGrad)"/>
+                        </g>
+                        <g transform="translate(38, 27) rotate(45)" filter="url(#iconGlowP)">
+                            <rect x="-6.5" y="-6.5" width="13" height="13" rx="2" fill="#fef08a" stroke="#d97706" stroke-width="1.2"/>
+                            <line x1="0" y1="-6.5" x2="0" y2="6.5" stroke="#b45309" stroke-width="1"/>
+                            <line x1="-6.5" y1="0" x2="6.5" y2="0" stroke="#b45309" stroke-width="1"/>
+                            <circle cx="-3" cy="-3" r="1" fill="#ef4444"/>
+                            <circle cx="3" cy="-3" r="1" fill="#22c55e"/>
+                            <circle cx="-3" cy="3" r="1" fill="#eab308"/>
+                            <circle cx="3" cy="3" r="1" fill="#3b82f6"/>
+                        </g>
+                        <g filter="url(#iconGlowP)">
+                            <circle cx="58" cy="11.5" r="5.2" fill="url(#goldPlayerGrad)"/>
+                            <circle cx="61.5" cy="8.5" r="1.8" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 64 19 C 62.5 15, 57 15, 54 18 C 51.5 22, 54.5 30, 61 31.5 C 65.5 31.5, 65.5 25, 64 19 Z" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 59 23 C 55 23, 49 26.5, 48 27.5 C 49 28.5, 55 26.5, 60 26.5" fill="url(#goldPlayerGrad)"/>
+                            <path d="M 63 30.5 C 58 30.5, 50 31.5, 49 29.5 C 48 27.5, 54 26.5, 60 27.5" fill="url(#goldPlayerGrad)"/>
+                        </g>
+                    </svg>
+                    <span id="txt-mode-facetoface">Face To Face</span>
+                </button>
+
+                <!-- 3. WITH FRIENDS -->
+                <button class="liquid-btn btn-friends" onclick="selectMode('Friends')">
+                    <svg class="svg-3d-icon icon-friends" viewBox="0 0 76 46">
+                        <defs>
+                            <linearGradient id="phoneFrameF" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fff8cc"/>
+                                <stop offset="30%" stop-color="#000000"/>
+                                <stop offset="100%" stop-color="#92400e"/>
+                            </linearGradient>
+                            <linearGradient id="phoneScreenF" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fef08a"/>
+                                <stop offset="100%" stop-color="#eab308"/>
+                            </linearGradient>
+                            <radialGradient id="heart3D" cx="35%" cy="30%" r="70%">
+                                <stop offset="0%" stop-color="#ff7675"/>
+                                <stop offset="30%" stop-color="#ef4444"/>
+                                <stop offset="70%" stop-color="#dc2626"/>
+                                <stop offset="100%" stop-color="#7f1d1d"/>
+                            </radialGradient>
+                            <filter id="iconGlowF" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.45"/>
+                            </filter>
+                        </defs>
+                        <!-- Left Tilted Phone -->
+                        <g transform="translate(4, 11) rotate(-16 7 12)" filter="url(#iconGlowF)">
+                            <rect x="0" y="0" width="14" height="24" rx="3.5" fill="url(#phoneFrameF)" stroke="#ffffff" stroke-width="0.8"/>
+                            <rect x="4.5" y="1" width="5" height="1" rx="0.5" fill="#78350f"/>
+                            <rect x="1.5" y="2.5" width="11" height="19.5" rx="2" fill="url(#phoneScreenF)"/>
+                        </g>
+                        <!-- Right Tilted Phone -->
+                        <g transform="translate(58, 11) rotate(16 7 12)" filter="url(#iconGlowF)">
+                            <rect x="0" y="0" width="14" height="24" rx="3.5" fill="url(#phoneFrameF)" stroke="#ffffff" stroke-width="0.8"/>
+                            <rect x="4.5" y="1" width="5" height="1" rx="0.5" fill="#78350f"/>
+                            <rect x="1.5" y="2.5" width="11" height="19.5" rx="2" fill="url(#phoneScreenF)"/>
+                        </g>
+                        <!-- Pearl Beads Arch -->
+                        <g fill="#ffffff" filter="url(#iconGlowF)">
+                            <circle cx="20" cy="35" r="1.4"/>
+                            <circle cx="25" cy="37.5" r="1.5"/>
+                            <circle cx="31" cy="39" r="1.6"/>
+                            <circle cx="38" cy="39.5" r="1.7"/>
+                            <circle cx="45" cy="39" r="1.6"/>
+                            <circle cx="51" cy="37.5" r="1.5"/>
+                            <circle cx="56" cy="35" r="1.4"/>
+                        </g>
+                        <!-- Big Back Heart -->
+                        <g filter="url(#iconGlowF)">
+                            <path d="M 33 6 C 26 2, 21 8, 24 16 C 26 21, 33 27, 36 30 C 39 27, 46 21, 48 16 C 51 8, 46 2, 39 6 C 37 7.5, 35 7.5, 33 6 Z" fill="url(#heart3D)"/>
+                            <ellipse cx="28" cy="9" rx="3.2" ry="1.8" fill="#ffffff" opacity="0.6" transform="rotate(-25 28 9)"/>
+                        </g>
+                        <!-- Small Front Heart -->
+                        <g filter="url(#iconGlowF)" transform="translate(5, 5)">
+                            <path d="M 39 12 C 34 8, 30 13, 32 18 C 34 22, 39 26, 41 28 C 43 26, 48 22, 50 18 C 52 13, 48 8, 43 12 C 41.5 13, 40.5 13, 39 12 Z" fill="url(#heart3D)"/>
+                            <ellipse cx="36" cy="14" rx="2.2" ry="1.2" fill="#ffffff" opacity="0.6" transform="rotate(-25 36 14)"/>
+                        </g>
+                    </svg>
+                    <span id="txt-mode-friends">With Friends</span>
+                </button>
+
+                <!-- 4. ONLINE -->
+                <button class="liquid-btn btn-online" onclick="selectMode('Online')">
+                    <svg class="svg-3d-icon icon-online" viewBox="0 0 76 46">
+                        <defs>
+                            <linearGradient id="phoneFrameO" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fff8cc"/>
+                                <stop offset="30%" stop-color="#000000"/>
+                                <stop offset="100%" stop-color="#92400e"/>
+                            </linearGradient>
+                            <linearGradient id="phoneScreenO" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#fef08a"/>
+                                <stop offset="100%" stop-color="#eab308"/>
+                            </linearGradient>
+                            <radialGradient id="earthBlue" cx="40%" cy="35%" r="65%">
+                                <stop offset="0%" stop-color="#60a5fa"/>
+                                <stop offset="35%" stop-color="#2563eb"/>
+                                <stop offset="75%" stop-color="#1d4ed8"/>
+                                <stop offset="100%" stop-color="#0f172a"/>
+                            </radialGradient>
+                            <filter id="iconGlowO" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-opacity="0.45"/>
+                            </filter>
+                        </defs>
+                        <!-- Left Tilted Phone -->
+                        <g transform="translate(4, 11) rotate(-16 7 12)" filter="url(#iconGlowO)">
+                            <rect x="0" y="0" width="14" height="24" rx="3.5" fill="url(#phoneFrameO)" stroke="#ffffff" stroke-width="0.8"/>
+                            <rect x="4.5" y="1" width="5" height="1" rx="0.5" fill="#78350f"/>
+                            <rect x="1.5" y="2.5" width="11" height="19.5" rx="2" fill="url(#phoneScreenO)"/>
+                        </g>
+                        <!-- Right Tilted Phone -->
+                        <g transform="translate(58, 11) rotate(16 7 12)" filter="url(#iconGlowO)">
+                            <rect x="0" y="0" width="14" height="24" rx="3.5" fill="url(#phoneFrameO)" stroke="#ffffff" stroke-width="0.8"/>
+                            <rect x="4.5" y="1" width="5" height="1" rx="0.5" fill="#78350f"/>
+                            <rect x="1.5" y="2.5" width="11" height="19.5" rx="2" fill="url(#phoneScreenO)"/>
+                        </g>
+                        <!-- Pearl Beads Arch -->
+                        <g fill="#ffffff" filter="url(#iconGlowO)">
+                            <circle cx="20" cy="35" r="1.4"/>
+                            <circle cx="25" cy="37.5" r="1.5"/>
+                            <circle cx="31" cy="39" r="1.6"/>
+                            <circle cx="38" cy="39.5" r="1.7"/>
+                            <circle cx="45" cy="39" r="1.6"/>
+                            <circle cx="51" cy="37.5" r="1.5"/>
+                            <circle cx="56" cy="35" r="1.4"/>
+                        </g>
+                        <!-- Central 3D Globe with Continents -->
+                        <g filter="url(#iconGlowO)">
+                            <circle cx="38" cy="18" r="14" fill="url(#earthBlue)"/>
+                            <path d="M 29 11 Q 32 9 33 12 Q 34 16 31 19 Q 28 17 27 14 Z" fill="#22c55e"/>
+                            <path d="M 31 20 Q 34 21 33 26 Q 30 28 29 24 Z" fill="#22c55e"/>
+                            <path d="M 36 9 Q 41 8 43 11 Q 41 14 38 13 Z" fill="#22c55e"/>
+                            <path d="M 37 15 Q 43 13 46 17 Q 44 24 40 25 Q 38 23 37 19 Z" fill="#22c55e"/>
+                            <path d="M 45 22 Q 49 21 48 25 Q 45 27 44 24 Z" fill="#22c55e"/>
+                            <ellipse cx="34" cy="11" rx="5.5" ry="3" fill="#ffffff" opacity="0.55" transform="rotate(-30 34 11)"/>
+                        </g>
+                    </svg>
+                    <span id="txt-mode-online">Online</span>
+                </button>
+            </div>
+
+            <!-- VIEW 2: DYNAMIC SETUP PANEL -->
+            <div id="computer-setup-view" class="setup-panel" style="display: none;">
+                <div class="setup-header">
+                    <button class="back-btn" onclick="showMainMenu()">
+                        <svg class="fa-icon" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 117.3c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                    </button>
+                    <span class="setup-title" id="txt-setup-title">VS COMPUTER</span>
+                    <div style="width:35px;"></div>
+                </div>
+
+                <!-- SELECT GAME MODE: CLASSIC, TEAM UP & QUICK (ORIGINAL SVGS) -->
+                <div id="section-game-mode" style="display: none;">
+                    <div class="section-label" id="txt-label-gametype">Select Game Mode</div>
+                    <div class="game-mode-grid">
+                        
+                        <!-- 1. CLASSIC: 4 Anatomical Avatars with Sloping Shoulders & Center VS -->
+                        <div class="game-mode-card active" id="mode-card-classic" onclick="selectGameType('classic')">
+                            <div class="mode-card-icon-wrap">
+                                <svg class="mode-card-svg" viewBox="0 0 44 44">
+                                    <defs>
+                                        <linearGradient id="avCyanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#e0f2fe"/>
+                                            <stop offset="35%" stop-color="#38bdf8"/>
+                                            <stop offset="75%" stop-color="#0284c7"/>
+                                            <stop offset="100%" stop-color="#0369a1"/>
+                                        </linearGradient>
+                                        <linearGradient id="avGoldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#fffbeb"/>
+                                            <stop offset="35%" stop-color="#fde047"/>
+                                            <stop offset="75%" stop-color="#f59e0b"/>
+                                            <stop offset="100%" stop-color="#b45309"/>
+                                        </linearGradient>
+                                        <filter id="avGlowSolid" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.35"/>
+                                        </filter>
+                                    </defs>
+
+                                    <!-- Top Avatar (Cyan) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="22" cy="3.5" r="3" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                        <path d="M 15.5 12.5 C 15.5 10 17 8.5 19 7.8 C 20 7.4 21 7.2 22 7.2 C 23 7.2 24 7.4 25 7.8 C 27 8.5 28.5 10 28.5 12.5 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Bottom Avatar (Cyan) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="22" cy="33.5" r="3" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                        <path d="M 15.5 42.5 C 15.5 40 17 38.5 19 37.8 C 20 37.4 21 37.2 22 37.2 C 23 37.2 24 37.4 25 37.8 C 27 38.5 28.5 40 28.5 42.5 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Left Avatar (Gold) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="6" cy="15" r="3" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                        <path d="M 0 24 C 0 21.5 1.5 20 3.5 19.3 C 4.5 18.9 5.2 18.7 6 18.7 C 6.8 18.7 7.5 18.9 8.5 19.3 C 10.5 20 12 21.5 12 24 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Right Avatar (Gold) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="38" cy="15" r="3" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                        <path d="M 32 24 C 32 21.5 33.5 20 35.5 19.3 C 36.5 18.9 37.2 18.7 38 18.7 C 38.8 18.7 39.5 18.9 40.5 19.3 C 42.5 20 44 21.5 44 24 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Center VS (Clear Air Gap) -->
+                                    <text x="22" y="24.5" font-family="'Poppins', sans-serif" font-weight="900" font-size="7.5" fill="#ffffff" text-anchor="middle" stroke="#0f172a" stroke-width="1.8" stroke-linejoin="round" paint-order="stroke fill">VS</text>
+                                </svg>
+                            </div>
+                            <span class="mode-title">Classic</span>
+                        </div>
+
+                        <!-- 2. TEAM UP: 2v2 Diagonal Duo Grouping with Zero Overlap -->
+                        <div class="game-mode-card" id="mode-card-teamup" onclick="selectGameType('teamup')">
+                            <div class="mode-card-icon-wrap">
+                                <svg class="mode-card-svg" viewBox="0 0 44 44">
+                                    <!-- Top-Right Team (Gold Pair) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <!-- Back Left Partner -->
+                                        <circle cx="28" cy="3.8" r="2.5" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.5" opacity="0.9"/>
+                                        <path d="M 22.5 11.5 C 22.5 9.2 24 8.2 25.5 7.6 C 26.5 7.2 27.2 7 28 7 C 28.8 7 29.5 7.2 30.5 7.6 C 32 8.2 33.5 9.2 33.5 11.5 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.5" opacity="0.9"/>
+                                        <!-- Front Right Partner -->
+                                        <circle cx="36.5" cy="6.5" r="3" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                        <path d="M 30.5 15 C 30.5 12.5 32 11.2 33.8 10.4 C 34.8 10 35.6 9.8 36.5 9.8 C 37.4 9.8 38.2 10 39.2 10.4 C 41 11.2 42.5 12.5 42.5 15 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Bottom-Left Team (Cyan Pair) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <!-- Back Right Partner -->
+                                        <circle cx="16" cy="30" r="2.5" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.5" opacity="0.9"/>
+                                        <path d="M 10.5 37.5 C 10.5 35.2 12 34.2 13.5 33.6 C 14.5 33.2 15.2 33 16 33 C 16.8 33 17.5 33.2 18.5 33.6 C 20 34.2 21.5 35.2 21.5 37.5 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.5" opacity="0.9"/>
+                                        <!-- Front Left Partner -->
+                                        <circle cx="7.5" cy="32.5" r="3" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                        <path d="M 1.5 41 C 1.5 38.5 3 37.2 4.8 36.4 C 5.8 36 6.6 35.8 7.5 35.8 C 8.4 35.8 9.2 36 10.2 36.4 C 12 37.2 13.5 38.5 13.5 41 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Center VS with Clear Air Gap -->
+                                    <text x="22" y="24.5" font-family="'Poppins', sans-serif" font-weight="900" font-size="7.5" fill="#ffd700" text-anchor="middle" stroke="#0f172a" stroke-width="1.8" stroke-linejoin="round" paint-order="stroke fill">VS</text>
+                                </svg>
+                            </div>
+                            <span class="mode-title">Team Up</span>
+                        </div>
+
+                        <!-- 3. QUICK: 4 Avatars around Gold Reload Arrow Badge with Perfect Clearance -->
+                        <div class="game-mode-card" id="mode-card-quick" onclick="selectGameType('quick')">
+                            <div class="mode-card-icon-wrap">
+                                <svg class="mode-card-svg" viewBox="0 0 44 44">
+                                    <defs>
+                                        <linearGradient id="quickBadgeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#fff8cc"/>
+                                            <stop offset="40%" stop-color="#f59e0b"/>
+                                            <stop offset="100%" stop-color="#b45309"/>
+                                        </linearGradient>
+                                    </defs>
+
+                                    <!-- Top Avatar (Cyan) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="22" cy="3.5" r="3" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                        <path d="M 15.5 12.5 C 15.5 10 17 8.5 19 7.8 C 20 7.4 21 7.2 22 7.2 C 23 7.2 24 7.4 25 7.8 C 27 8.5 28.5 10 28.5 12.5 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Bottom Avatar (Cyan) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="22" cy="33.5" r="3" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                        <path d="M 15.5 42.5 C 15.5 40 17 38.5 19 37.8 C 20 37.4 21 37.2 22 37.2 C 23 37.2 24 37.4 25 37.8 C 27 38.5 28.5 40 28.5 42.5 Z" fill="url(#avCyanGrad)" stroke="#0369a1" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Left Avatar (Gold) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="6" cy="15" r="3" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                        <path d="M 0 24 C 0 21.5 1.5 20 3.5 19.3 C 4.5 18.9 5.2 18.7 6 18.7 C 6.8 18.7 7.5 18.9 8.5 19.3 C 10.5 20 12 21.5 12 24 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Right Avatar (Gold) -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="38" cy="15" r="3" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                        <path d="M 32 24 C 32 21.5 33.5 20 35.5 19.3 C 36.5 18.9 37.2 18.7 38 18.7 C 38.8 18.7 39.5 18.9 40.5 19.3 C 42.5 20 44 21.5 44 24 Z" fill="url(#avGoldGrad)" stroke="#78350f" stroke-width="0.6"/>
+                                    </g>
+
+                                    <!-- Center Circular Reload Badge -->
+                                    <g filter="url(#avGlowSolid)">
+                                        <circle cx="22" cy="22" r="5.6" fill="url(#quickBadgeGold)" stroke="#ffffff" stroke-width="0.8"/>
+                                        <circle cx="22" cy="22" r="4.2" fill="#0f172a" opacity="0.75"/>
+                                        <path d="M 20.6 20.6 A 2.2 2.2 0 1 1 20.8 23.8" stroke="#ffffff" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                                        <polygon points="20.8,18.8 20.8,22 18.6,20.4" fill="#ffffff"/>
+                                    </g>
+                                </svg>
+                            </div>
+                            <span class="mode-title">Quick</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="section-goti-select">
+                    <div class="section-label" id="txt-label-color">Select Your Goti Color</div>
+                    <div class="goti-container">
+                        <div class="goti red active" onclick="selectGoti(this)"></div>
+                        <div class="goti green" onclick="selectGoti(this)"></div>
+                        <div class="goti yellow" onclick="selectGoti(this)"></div>
+                        <div class="goti blue" onclick="selectGoti(this)"></div>
+                    </div>
+                </div>
+
+                <div id="section-player-select">
+                    <div class="section-label" id="txt-label-players">Select Players</div>
+                    <div class="option-grid">
+                        <button class="opt-btn active" id="btn-player-2" onclick="selectPlayerCount(2, this)">2 Players</button>
+                        <button class="opt-btn" id="btn-player-3" onclick="selectPlayerCount(3, this)">3 Players</button>
+                        <button class="opt-btn" id="btn-player-4" onclick="selectPlayerCount(4, this)">4 Players</button>
+                    </div>
+                </div>
+
+                <div id="section-bet-select">
+                    <div class="section-label" id="txt-label-bet">Select Coin Bet</div>
+                    <div class="bet-stepper-container">
+                        <button type="button" class="bet-step-btn" id="btn-bet-minus-comp" onclick="changeBet('computer', -1)">
+                            <span>−</span>
+                        </button>
+
+                        <div class="bet-gold-card">
+                            <div class="bet-card-coins">
+                                <svg class="bet-coins-svg" viewBox="0 0 512 512">
+                                    <path fill="#ffd700" d="M128 320c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm0-64c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm0-64c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm128-96c70.7 0 128 28.7 128 64s-57.3 64-128 64-128-28.7-128-64 57.3-64 128-64z"/>
+                                    <path fill="#f39c12" d="M384 192v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32c0 35.3 57.3 64 128 64s128-28.7 128-64v-32c0 35.3 57.3 64 128 64s128-28.7 128-64z"/>
+                                </svg>
+                            </div>
+                            <div class="bet-pill-display">
+                                <span id="display-bet-amount-comp">100</span>
+                            </div>
+                            <span class="bet-card-label">ENTRY</span>
+                        </div>
+
+                        <button type="button" class="bet-step-btn" id="btn-bet-plus-comp" onclick="changeBet('computer', 1)">
+                            <span>+</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="start-btn" id="txt-btn-start" onclick="startGame()">START GAME</button>
+            </div>
+
+            <!-- VIEW 3: WITH FRIENDS 2-TAB SETUP -->
+            <div id="friends-setup-view" class="setup-panel" style="display: none;">
+                <div class="setup-header">
+                    <button class="back-btn" onclick="showMainMenu()">
+                        <svg class="fa-icon" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 117.3c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                    </button>
+                    <span class="setup-title" style="color: #2575fc;">WITH FRIENDS</span>
+                    <div style="width:35px;"></div>
+                </div>
+
+                <div class="friends-tab-group">
+                    <button class="friends-tab-btn active" id="tab-btn-create" onclick="switchFriendsTab('create')">
+                        ➕ Create Room
+                    </button>
+                    <button class="friends-tab-btn" id="tab-btn-join" onclick="switchFriendsTab('join')">
+                        🔑 Join Room
+                    </button>
+                </div>
+
+                <!-- TAB 1: CREATE ROOM -->
+                <div id="friends-create-section">
+                    <div id="friends-step-bet">
+                        <div class="section-label" style="margin-top: 4px;">Select Entry Coin Bet</div>
+                        <div class="bet-stepper-container">
+                            <button type="button" class="bet-step-btn" id="btn-bet-minus-friends" onclick="changeBet('friends', -1)">
+                                <span>−</span>
+                            </button>
+
+                            <div class="bet-gold-card">
+                                <div class="bet-card-coins">
+                                    <svg class="bet-coins-svg" viewBox="0 0 512 512">
+                                        <path fill="#ffd700" d="M128 320c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm0-64c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm0-64c0 35.3 57.3 64 128 64s128-28.7 128-64v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32zm128-96c70.7 0 128 28.7 128 64s-57.3 64-128 64-128-28.7-128-64 57.3-64 128-64z"/>
+                                        <path fill="#f39c12" d="M384 192v32c0 35.3-57.3 64-128 64s-128-28.7-128-64v-32c0 35.3 57.3 64 128 64s128-28.7 128-64z"/>
+                                    </svg>
+                                </div>
+                                <div class="bet-pill-display">
+                                    <span id="display-bet-amount-friends">100</span>
+                                </div>
+                                <span class="bet-card-label">ENTRY</span>
+                            </div>
+
+                            <button type="button" class="bet-step-btn" id="btn-bet-plus-friends" onclick="changeBet('friends', 1)">
+                                <span>+</span>
+                            </button>
+                        </div>
+
+                        <button type="button" class="start-btn" style="background: linear-gradient(135deg, #2575fc, #6a11cb); margin-top: 14px; width: 100%;" onclick="goToFriendsModeStep()">
+                            NEXT ➔
+                        </button>
+                    </div>
+
+                    <div id="friends-step-mode" style="display: none;">
+                        <div class="section-label" style="margin-top: 4px;">Select Match Mode</div>
+                        <div class="game-mode-grid" style="grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                            <div class="game-mode-card active" id="friends-mode-classic" onclick="selectFriendsGameMode('classic')">
+                                <span style="font-size: 22px;">🎲</span>
+                                <span class="mode-title">Classic</span>
+                                <span style="font-size: 9.5px; opacity: 0.8;">All 4 Gotis</span>
+                            </div>
+                            <div class="game-mode-card" id="friends-mode-quick" onclick="selectFriendsGameMode('quick')">
+                                <span style="font-size: 22px;">⚡</span>
+                                <span class="mode-title">Quick</span>
+                                <span style="font-size: 9.5px; opacity: 0.8; color: #00f2fe;">First 1 Goti Win</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: 14px;">
+                            <button type="button" class="cancel-btn" style="flex: 0.4;" onclick="backToFriendsBetStep()">Back</button>
+                            <button type="button" class="start-btn" style="flex: 1; margin-top: 0; background: linear-gradient(135deg, #2575fc, #6a11cb);" onclick="executeCreateFriendRoom()">
+                                GENERATE CODE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: JOIN ROOM -->
+                <div id="friends-join-section" style="display: none;">
+                    <div class="field-group">
+                        <label class="field-label">Enter 8-Digit Room Code (e.g. 00123456)</label>
+                        <input type="tel" id="input-join-room-code" class="room-code-input" maxlength="8" placeholder="e.g. 00582914" autocomplete="off" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')">
+                    </div>
+
+                    <div id="join-error-msg" class="join-error-banner" style="display: none;"></div>
+
+                    <button class="start-btn" style="background: linear-gradient(135deg, #00b894, #00cec9); margin-top: 18px;" onclick="executeJoinFriendRoom()">
+                        JOIN ROOM
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 4: FULL-SCREEN LIVE MATCH LOBBY -->
+            <div id="friends-lobby-view" class="setup-panel full-screen-lobby" style="display: none;">
+                <div class="lobby-top-bar">
+                    <button class="back-btn" onclick="leaveFriendsLobby()">
+                        <svg class="fa-icon" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 117.3c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                    </button>
+                    <span class="lobby-header-title">MATCH LOBBY</span>
+                    <span class="lobby-player-count-badge" id="lobby-player-count">1 / 4 Players</span>
+                </div>
+
+                <div class="lobby-code-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="lobby-code-sub">ROOM CODE (8 DIGITS)</span>
+                        <span class="lobby-bet-tag" id="lobby-bet-display">Entry: 100 Coins</span>
+                    </div>
+                    <div class="lobby-code-row">
+                        <span id="lobby-display-code">00------</span>
+                        <button class="lobby-copy-btn" onclick="copyFriendsRoomCode()">
+                            📋 Copy Code
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lobby-players-list">
+                    <div class="lobby-slot host-slot" id="lobby-host-card">
+                        <div class="lobby-avatar-wrap">
+                            <div class="circle-avatar av-bg-1" id="lobby-host-avatar">
+                                <span id="lobby-host-icon">👑</span>
+                            </div>
+                            <span class="goti-color-badge color-red"></span>
+                        </div>
+                        <div class="lobby-player-details">
+                            <div class="lobby-player-name-row">
+                                <span class="lobby-player-name" id="lobby-host-name">Room Host</span>
+                                <span class="host-tag">HOST</span>
+                            </div>
+                            <span class="lobby-player-handle" id="lobby-host-handle">@host</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-divider">
+                        <span>JOINED PLAYERS (MAX 3)</span>
+                    </div>
+
+                    <div class="lobby-slot" id="lobby-slot-1">
+                        <div class="lobby-slot-empty">
+                            <div class="spinner-ring"></div>
+                            <span>Waiting for Player 2...</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-slot" id="lobby-slot-2">
+                        <div class="lobby-slot-empty">
+                            <div class="spinner-ring"></div>
+                            <span>Waiting for Player 3...</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-slot" id="lobby-slot-3">
+                        <div class="lobby-slot-empty">
+                            <div class="spinner-ring"></div>
+                            <span>Waiting for Player 4...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lobby-bottom-action">
+                    <button class="start-btn host-start-match-btn" id="lobby-host-start-btn" style="display: none;" onclick="executeHostStartMatch()">
+                        START MATCH (MIN 2 PLAYERS)
+                    </button>
+
+                    <div class="joined-waiting-bar" id="lobby-joined-wait-bar" style="display: none;">
+                        <div class="spinner-ring"></div>
+                        <span>Waiting for Host to start match...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: LIVE GAME BOARD VIEW -->
+            <div id="game-play-view">
+                <div class="players-row">
+                    <div class="player-card" id="card-player-1">
+                        <span class="player-name">Player 2 <span class="heart-icon heart-green">♥</span></span>
+                        <div class="dice-scene" id="dice-container-1"></div>
+                    </div>
+                    <div class="player-card" id="card-player-2">
+                        <span class="player-name">Player 3 <span class="heart-icon heart-yellow">♥</span></span>
+                        <div class="dice-scene" id="dice-container-2"></div>
+                    </div>
+                </div>
+
+                <div class="board-container">
+                    <div class="ludo-base base-green">
+                        <div class="inner-white-box">
+                            <div class="token-slot slot-green" id="slot-green-0"></div>
+                            <div class="token-slot slot-green" id="slot-green-1"></div>
+                            <div class="token-slot slot-green" id="slot-green-2"></div>
+                            <div class="token-slot slot-green" id="slot-green-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="ludo-base base-yellow">
+                        <div class="inner-white-box">
+                            <div class="token-slot slot-yellow" id="slot-yellow-0"></div>
+                            <div class="token-slot slot-yellow" id="slot-yellow-1"></div>
+                            <div class="token-slot slot-yellow" id="slot-yellow-2"></div>
+                            <div class="token-slot slot-yellow" id="slot-yellow-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="ludo-base base-red">
+                        <div class="inner-white-box">
+                            <div class="token-slot slot-red" id="slot-red-0"></div>
+                            <div class="token-slot slot-red" id="slot-red-1"></div>
+                            <div class="token-slot slot-red" id="slot-red-2"></div>
+                            <div class="token-slot slot-red" id="slot-red-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="ludo-base base-blue">
+                        <div class="inner-white-box">
+                            <div class="token-slot slot-blue" id="slot-blue-0"></div>
+                            <div class="token-slot slot-blue" id="slot-blue-1"></div>
+                            <div class="token-slot slot-blue" id="slot-blue-2"></div>
+                            <div class="token-slot slot-blue" id="slot-blue-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="center-home">
+                        <div class="home-triangle triangle-yellow" id="home-triangle-yellow"></div>
+                        <div class="home-triangle triangle-blue" id="home-triangle-blue"></div>
+                        <div class="home-triangle triangle-red" id="home-triangle-red"></div>
+                        <div class="home-triangle triangle-green" id="home-triangle-green"></div>
+                    </div>
+
+                    <div class="track track-top track-vertical" id="trackTop"></div>
+                    <div class="track track-left track-horizontal" id="trackLeft"></div>
+                    <div class="track track-right track-horizontal" id="trackRight"></div>
+                    <div class="track track-bottom track-vertical" id="trackBottom"></div>
+                </div>
+
+                <div class="players-row">
+                    <div class="player-card active-turn" id="card-player-0">
+                        <span class="player-name">@player <span class="heart-icon heart-red">♥</span></span>
+                        <div class="dice-scene" id="dice-container-0"></div>
+                    </div>
+                    <div class="player-card" id="card-player-3">
+                        <span class="player-name">Player 4 <span class="heart-icon heart-blue">♥</span></span>
+                        <div class="dice-scene" id="dice-container-3"></div>
+                    </div>
+                </div>
+
+                <div class="game-status-bar">
+                    <span class="turn-text" id="turn-status">@player: -</span>
+                    <button class="exit-game-btn" onclick="openExitConfirm()">Exit</button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- ==========================================================================
+             SECTION 5: SYSTEM MODALS & SLIDE-UP WINNER BOTTOM SHEET
+             ========================================================================== -->
+        <div class="modal-overlay" id="profile-modal-overlay">
+            <div class="profile-modal full-screen-modal">
+                <div class="modal-top-nav">
+                    <button class="modal-back-btn" onclick="closeProfileMenu()">
+                        <svg class="fa-icon" viewBox="0 0 448 512"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 117.3c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                    </button>
+                    <span class="modal-page-title" id="txt-header-profile">Profile & Settings</span>
+                    <div style="width: 32px;"></div>
+                </div>
+
+                <div class="modal-scroll-body">
+                    <div class="profile-top-card">
+                        <div class="profile-left-info">
+                            <div class="circle-avatar" id="modal-user-avatar">
+                                <span id="modal-avatar-icon">👤</span>
+                            </div>
+                            <div class="profile-name-details">
+                                <span class="profile-fullname" id="card-display-fullname">Loki Player</span>
+                                <span class="profile-handle" id="card-display-handle">@loki</span>
+                            </div>
+                        </div>
+                        <button class="edit-profile-action-btn" id="txt-btn-editprofile" onclick="openEditProfileModal()">
+                            ✏️ Edit Profile
+                        </button>
+                        <!-- FIX (feature): Guest account ke liye "Edit Profile" ki jagah
+                             "Login" button dikhta hai (openProfileMenu() control karta hai) -
+                             ye seedha login page (index.html) par le jata hai taaki wahi ek
+                             reliable Google login flow reuse ho aur guest ka data upgrade ho jaye. -->
+                        <button class="edit-profile-action-btn" id="txt-btn-linkgoogle" style="display:none;" onclick="goToLoginForUpgrade()">
+                            🔑 Login
+                        </button>
+                    </div>
+
+                    <div class="account-settings-container">
+                        <span class="section-main-title" id="txt-title-account">Account & Preferences</span>
+
+                        <div class="settings-section-card">
+                            <span class="section-subtitle" id="txt-subtitle-theme">Display Theme</span>
+                            <div class="theme-toggle-group">
+                                <button class="theme-btn" id="theme-btn-day" onclick="setAppTheme('day')"><span id="txt-theme-day">☀️ Day</span></button>
+                                <button class="theme-btn" id="theme-btn-night" onclick="setAppTheme('night')"><span id="txt-theme-night">🌙 Night</span></button>
+                                <button class="theme-btn" id="theme-btn-system" onclick="setAppTheme('system')"><span id="txt-theme-system">⚙️ System</span></button>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <span class="section-subtitle" id="txt-subtitle-lang">App Language / भाषा</span>
+                            <div class="theme-toggle-group">
+                                <button class="theme-btn lang-btn" id="lang-btn-en" onclick="setAppLanguage('en')"><span>English</span></button>
+                                <button class="theme-btn lang-btn" id="lang-btn-hi" onclick="setAppLanguage('hi')"><span>🇮🇳 हिंदी</span></button>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <div class="setting-row-item">
+                                <div class="setting-row-info">
+                                    <span class="setting-item-title" id="txt-notif-title">🔔 Game Notifications</span>
+                                    <span class="setting-item-desc" id="txt-notif-desc">Game updates & Turn alerts</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notification-toggle-checkbox" onchange="toggleNotifications(this)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-section-card">
+                            <span class="section-subtitle" id="txt-subtitle-support">Support & App Feedback</span>
+                            <div class="support-buttons-grid">
+                                <button class="support-btn rate-btn" id="txt-btn-rate" onclick="openRateUsModal()">⭐ Rate Us</button>
+                                <button class="support-btn feedback-btn" id="txt-btn-feedback" onclick="openFeedbackModal()">💬 Send Feedback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-row">
+                    <button class="logout-action-btn" id="txt-btn-logout" onclick="openLogoutConfirm()">
+                        <svg class="fa-icon" style="width:14px; height:14px;" viewBox="0 0 512 512"><path fill="currentColor" d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"/></svg>
+                        Logout Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="edit-profile-modal-overlay">
+            <div class="profile-modal full-screen-modal">
+                <div class="modal-top-nav">
+                    <button class="modal-back-btn" onclick="closeEditProfileModal()"><svg class="fa-icon" viewBox="0 0 448 512"><path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 117.3c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></button>
+                    <span class="modal-page-title" id="txt-header-editprofile">Edit Profile</span>
+                    <div style="width: 32px;"></div>
+                </div>
+                <div class="modal-scroll-body">
+                    <div class="settings-section-card">
+                        <span class="section-subtitle" id="txt-subtitle-avatar">Choose Profile Avatar</span>
+                        <div class="avatar-picker-grid">
+                            <div class="avatar-picker-item active" id="avatar-opt-1" onclick="selectAvatarPreset(1)"><div class="avatar-circle-icon av-bg-1">👑</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-2" onclick="selectAvatarPreset(2)"><div class="avatar-circle-icon av-bg-2">🥷</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-3" onclick="selectAvatarPreset(3)"><div class="avatar-circle-icon av-bg-3">🎮</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-4" onclick="selectAvatarPreset(4)"><div class="avatar-circle-icon av-bg-4">🔥</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-5" onclick="selectAvatarPreset(5)"><div class="avatar-circle-icon av-bg-5">⚡</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-6" onclick="selectAvatarPreset(6)"><div class="avatar-circle-icon av-bg-6">🦁</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-7" onclick="selectAvatarPreset(7)"><div class="avatar-circle-icon av-bg-7">💀</div></div>
+                            <div class="avatar-picker-item" id="avatar-opt-8" onclick="selectAvatarPreset(8)"><div class="avatar-circle-icon av-bg-8">👤</div></div>
+                        </div>
+                    </div>
+                    <div class="settings-section-card">
+                        <span class="section-subtitle" id="txt-subtitle-userinfo">Personal Information</span>
+                        <div class="field-group">
+                            <label class="field-label" id="txt-label-fullname">Full Name</label>
+                            <input type="text" id="setting-user-name" class="field-input" placeholder="Enter Full Name">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" id="txt-label-username">Username (@handle)</label>
+                            <input type="text" id="setting-user-username" class="field-input" placeholder="e.g. loki_9234">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" id="txt-label-age">Select Age Group</label>
+                            <select id="setting-user-age" class="field-select">
+                                <option value="">Select Age</option>
+                                <option value="Under 18">Under 18</option>
+                                <option value="18-24">18 - 24 Years</option>
+                                <option value="25-34">25 - 34 Years</option>
+                                <option value="35-49">35 - 49 Years</option>
+                                <option value="50+">50+ Years</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-row">
+                    <button class="save-profile-btn" style="width: 100%;" id="txt-btn-savechanges" onclick="saveProfileDetails()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="rate-modal-overlay">
+            <div class="confirm-modal">
+                <div class="confirm-title">⭐ Rate Ludo Prime</div>
+                <div class="confirm-desc">Enjoying the game? Please leave us a rating!</div>
+                <div class="star-rating-row">
+                    <span class="rating-star" onclick="selectRatingStar(1)">★</span>
+                    <span class="rating-star" onclick="selectRatingStar(2)">★</span>
+                    <span class="rating-star" onclick="selectRatingStar(3)">★</span>
+                    <span class="rating-star" onclick="selectRatingStar(4)">★</span>
+                    <span class="rating-star" onclick="selectRatingStar(5)">★</span>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="cancel-btn" onclick="closeRateUsModal()">Cancel</button>
+                    <button class="modal-btn" onclick="submitGameRating()">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="feedback-modal-overlay">
+            <div class="confirm-modal">
+                <div class="confirm-title">💬 Send Feedback</div>
+                <div class="field-group" style="margin: 10px 0;">
+                    <textarea id="feedback-text-input" class="field-input" style="height: 80px; padding: 8px;" placeholder="Write your suggestion or issue..."></textarea>
+                </div>
+                <div class="confirm-buttons">
+                    <button class="cancel-btn" onclick="closeFeedbackModal()">Cancel</button>
+                    <button class="modal-btn" onclick="submitUserFeedback()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="logout-modal-overlay">
+            <div class="confirm-modal">
+                <div class="confirm-title">Confirm Logout?</div>
+                <div class="confirm-desc">Are you sure you want to log out from your account?</div>
+                <div class="confirm-buttons">
+                    <button class="cancel-btn" onclick="closeLogoutConfirm()">CANCEL</button>
+                    <button class="leave-btn" onclick="confirmLogout()">YES, LOGOUT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="exit-modal-overlay">
+            <div class="confirm-modal">
+                <div class="confirm-title">Exit Game?</div>
+                <div class="confirm-desc">Are you sure you want to leave this match? All progress will be lost.</div>
+                <div class="confirm-buttons">
+                    <button class="cancel-btn" onclick="closeExitConfirm()">CANCEL</button>
+                    <button class="leave-btn" onclick="confirmExitGame()">YES, LEAVE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE-UP HALF-SCREEN WINNER BOTTOM SHEET -->
+        <div class="winner-sheet-overlay" id="winner-modal-overlay">
+            <div class="winner-bottom-sheet" id="winner-bottom-sheet">
+                <div class="sheet-drag-handle"></div>
+                
+                <div class="winner-sheet-header">
+                    <span class="winner-title-glow">🏆 MATCH RESULT 🏆</span>
+                </div>
+
+                <div id="winner-prize-banner" class="winner-prize-card" style="display: none;">
+                    <span class="prize-title">TOTAL PRIZE POOL WON</span>
+                    <div class="prize-coins-row">
+                        <svg class="fa-icon coin-icon" style="width:20px; height:20px;" viewBox="0 0 512 512"><path fill="#ffd700" d="M0 405.3C0 452.1 91.9 490 205.3 490S410.7 452.1 410.7 405.3v-54.6c-27.1 21.6-80.4 36-141.3 39.7-5.1.3-10.3.5-15.5.5-70.3 0-132.8-21.7-166.7-54.3-19.8-19.1-30.9-42.6-30.9-67.9v-2.3C22.6 281.8 0 316.5 0 357.3v48zm512-149.3c0-46.8-91.9-84.7-205.3-84.7S101.3 209.2 101.3 256v42.7c0 46.8 91.9 84.7 205.3 84.7s205.3-37.9 205.3-84.7V256zm0-106.7c0-46.8-91.9-84.7-205.3-84.7S101.3 102.5 101.3 149.3v42.7c33.9-32.6 96.4-54.3 166.7-54.3 5.2 0 10.4.2 15.5.5 60.9 3.7 114.2 18.1 141.3 39.7v-28.9zM306.7 0C193.3 0 101.3 37.9 101.3 84.7S193.3 169.3 306.7 169.3s205.3-37.9 205.3-84.7S420.1 0 306.7 0z"/></svg>
+                        <span id="winner-prize-amount">+0</span>
+                    </div>
+                </div>
+
+                <div id="winner-dynamic-body" class="winner-dynamic-body"></div>
+
+                <button class="modal-btn sheet-exit-btn" onclick="confirmExitGame()">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+             SECTION 6: BOTTOM NAV BAR
+             ========================================================================== -->
+        <footer class="bottom-bar" id="main-bottom-bar">
+            <button class="nav-btn active">
+                <svg class="fa-icon" viewBox="0 0 576 512"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 17-13.7 32.2-31.2 32.2h-96c-17.7 0-32-14.3-32-32v-96H224v96c0 17.7-14.3 32-32 32H96c-17.6 0-32-14.5-32-32.2V287.6H32c-18 0-32-14.1-32-32.1 0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7l256.4 224.5c8 7 10 15 10 24z"/></svg>
+                <span id="txt-nav-home">Home</span>
+            </button>
+            <button class="nav-btn">
+                <svg class="fa-icon" viewBox="0 0 576 512"><path d="M400 0H176c-26.5 0-48 21.5-48 48v48H32C14.3 96 0 110.3 0 128v48c0 70.7 57.3 128 128 128h13.2c28.3 34.4 70.4 57.7 118.8 63v41H192c-17.7 0-32-14.3-32-32v32c0 17.7 14.3 32 32 32h192c17.7 0 32-14.3 32-32v-32c0-17.7-14.3-32-32-32h-68v-41c48.4-5.3 90.5-28.6 118.8-63H448c70.7 0 128-57.3 128-128v-48c0-17.7-14.3-32-32-32h-96V48c0-26.5-21.5-48-48-48zM96 240c-35.3 0-64-28.7-64-64v-16h64v80zm384-80h64v16c0 35.3-28.7 64-64 64v-80z"/></svg>
+                <span id="txt-nav-rank">Rank</span>
+            </button>
+            <button class="nav-btn">
+                <svg class="fa-icon" viewBox="0 0 640 512"><path d="M36.8 192H603.2c20.3 0 36.8-16.5 36.8-36.8c0-7.3-2.2-14.4-6.2-20.4L558.2 21.4C549.7 8.1 535.1 0 519.4 0H120.6c-15.7 0-30.3 8.1-38.8 21.4L6.2 134.8C2.2 140.8 0 147.9 0 155.2C0 175.5 16.5 192 36.8 192zM64 224V464c0 26.5 21.5 48 48 48H528c26.5 0 48-21.5 48-48V224H64zm176 96c0-8.8 7.2-16 16-16h160c8.8 0 16 7.2 16 16v96c0 8.8-7.2 16-16 16H256c-8.8 0-16-7.2-16-16V320z"/></svg>
+                <span id="txt-nav-shop">Shop</span>
+            </button>
+            <button class="nav-btn" onclick="openHistory()">
+                <svg class="fa-icon" viewBox="0 0 512 512"><path d="M48 256c0 114.9 93.1 208 208 208s208-93.1 208-208S370.9 48 256 48c-60.8 0-115.7 26.2-153.9 68.1L128 144H16c-8.8 0-16-7.2-16-16V16l45.7 45.7C95.4 23.3 171.8 0 256 0c141.4 0 256 114.6 256 256S397.4 512 256 512 0 397.4 0 256h48zm224-128v120l84.9 50.9c7.6 4.5 10.1 14.3 5.6 21.9s-14.3 10.1-21.9 5.6l-96-57.6C240.2 264.1 238 258.2 238 252V128c0-8.8 7.2-16 16-16s16 7.2 16 16z"/></svg>
+                <span id="txt-nav-history">History</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- ==========================================================================
+         SECTION 7: SCRIPTS INCLUSION
+         ========================================================================== -->
+    <!-- ==========================================================================
+         DAILY REWARD SHEET
+         ========================================================================== -->
+    <div class="sheet-overlay" id="daily-reward-overlay" onclick="if(event.target===this)closeDailyRewardModal()">
+        <div class="sheet-panel" style="position: relative;">
+            <div class="sheet-head">
+                <div>
+                    <span class="sheet-title">🎁 Daily Reward</span>
+                    <span class="sheet-sub">Roz login karo, streak badhao</span>
+                </div>
+                <button class="sheet-close" onclick="closeDailyRewardModal()">✕</button>
+            </div>
+
+            <div class="daily-reward-grid" id="daily-reward-grid"></div>
+
+            <div class="daily-reward-footer">
+                <span class="daily-note" id="daily-reward-note"></span>
+                <span class="daily-timer" id="daily-reward-timer"></span>
+                <button class="claim-btn" id="btn-claim-daily" onclick="claimDailyReward()">Claim</button>
+            </div>
+
+            <div class="reward-burst" id="reward-burst"></div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         GOTI + BOARD THEME SHEET
+         ========================================================================== -->
+    <div class="sheet-overlay" id="theme-modal-overlay" onclick="if(event.target===this)closeThemeModal()">
+        <div class="sheet-panel">
+            <div class="sheet-head">
+                <div>
+                    <span class="sheet-title">🎨 Themes</span>
+                    <span class="sheet-sub">Goti aur Ludo board ka look badlein</span>
+                </div>
+                <button class="sheet-close" onclick="closeThemeModal()">✕</button>
+            </div>
+
+            <span class="theme-group-title">Goti Theme</span>
+            <div class="theme-grid" id="token-theme-grid"></div>
+
+            <span class="theme-group-title">Ludo Board Theme</span>
+            <div class="theme-grid board-grid" id="board-theme-grid"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/audio-manager.js"></script>
+    <script src="js/socket-manager.js"></script>
+    <script src="js/board-manager.js"></script>
+    <script src="js/turn-manager.js"></script>
+    <script src="js/token-manager.js"></script>
+    <script src="js/dice-manager.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/theme-manager.js"></script>
+    <script src="js/rewards-manager.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ludo PRIME - Login</title>
+
+    <!-- Auth Guard: Login hone par seedha game.html khulega -->
+    <script>
+        // FIX (feature): Guest profile se "Login" button dabane par yahan
+        // wapas bhejte hain taaki wahi (reliable) Google login flow reuse ho -
+        // lekin normal case me currentUser already set hone par turant
+        // game.html par bounce ho jata. Isliye upgrade-intent flag hone par
+        // is auto-redirect ko skip karte hain, taaki login buttons dikhein.
+        const isGuestUpgradeFlow = sessionStorage.getItem('ludo_upgrade_intent') === '1';
+        if (localStorage.getItem('currentUser') && !isGuestUpgradeFlow) {
+            document.documentElement.style.display = 'none';
+            window.location.replace('game.html');
+        }
+
+        function applySystemTheme() {
+            const savedTheme = localStorage.getItem('app_theme') || localStorage.getItem('ludo_theme') || 'dark';
+            const theme = (savedTheme === 'light' || savedTheme === 'day') ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        applySystemTheme();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+    <!-- FIX: Login page se Day/Night theme toggle hata diya gaya hai (user request) -->
+
+    <!-- Ludo Background -->
+    <div class="ludo-board-bg">
+        <div class="bg-overlay"></div>
+        <div class="ludo-grid-board">
+            <div class="quad red-base"><div class="pocket"></div></div>
+            <div class="quad green-base"><div class="pocket"></div></div>
+            <div class="quad yellow-base"><div class="pocket"></div></div>
+            <div class="quad blue-base"><div class="pocket"></div></div>
+        </div>
+    </div>
+
+    <!-- Symmetrical 3D Glass Card -->
+    <main class="login-wrapper">
+        <div class="glass-card">
+            
+            <!-- TOP: Logo -->
+            <header class="logo-box">
+                <img src="assets/image/logo-name.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                <h1 class="logo-text">LUDO <span class="gold-accent">PRIME</span></h1>
+            </header>
+
+            <!-- CENTER: 3D Interactive Dice -->
+            <div class="dice-stage">
+                <div class="dice-scene" id="diceScene">
+                    <div class="cube-3d" id="cube3d">
+                        
+                        <!-- Core -->
+                        <div class="core-face c-front"></div>
+                        <div class="core-face c-back"></div>
+                        <div class="core-face c-top"></div>
+                        <div class="core-face c-bottom"></div>
+                        <div class="core-face c-left"></div>
+                        <div class="core-face c-right"></div>
+
+                        <!-- 1 DOT: Front -->
+                        <div class="face front">
+                            <span class="pip pip-mid red-dot"></span>
+                        </div>
+
+                        <!-- 6 DOTS: Back -->
+                        <div class="face back">
+                            <span class="pip pip-tl"></span>
+                            <span class="pip pip-tr"></span>
+                            <span class="pip pip-ml"></span>
+                            <span class="pip pip-mr"></span>
+                            <span class="pip pip-bl"></span>
+                            <span class="pip pip-br"></span>
+                        </div>
+
+                        <!-- 5 DOTS: Top -->
+                        <div class="face top">
+                            <span class="pip pip-tl"></span>
+                            <span class="pip pip-tr"></span>
+                            <span class="pip pip-mid"></span>
+                            <span class="pip pip-bl"></span>
+                            <span class="pip pip-br"></span>
+                        </div>
+
+                        <!-- 2 DOTS: Bottom -->
+                        <div class="face bottom">
+                            <span class="pip pip-tl"></span>
+                            <span class="pip pip-br"></span>
+                        </div>
+
+                        <!-- 3 DOTS: Right -->
+                        <div class="face right">
+                            <span class="pip pip-tl"></span>
+                            <span class="pip pip-mid"></span>
+                            <span class="pip pip-br"></span>
+                        </div>
+
+                        <!-- 4 DOTS: Left -->
+                        <div class="face left">
+                            <span class="pip pip-tl"></span>
+                            <span class="pip pip-tr"></span>
+                            <span class="pip pip-bl"></span>
+                            <span class="pip pip-br"></span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="dice-shadow"></div>
+                <span class="drag-hint">Hold to pause • Swipe to spin</span>
+            </div>
+
+            <!-- BOTTOM: Actions -->
+            <div class="actions-box">
+                <div class="social-row">
+                    <button id="gmailBtn" class="morph-btn btn-gmail" aria-label="Login with Gmail">
+                        <span class="glare"></span>
+                        <i class="fa-brands fa-google"></i>
+                        <span>Gmail</span>
+                    </button>
+
+                    <button id="fbBtn" class="morph-btn btn-fb" aria-label="Login with Facebook">
+                        <span class="glare"></span>
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+
+                <button id="guestBtn" class="morph-btn btn-guest" aria-label="Play as Guest">
+                    <span class="glare"></span>
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>Play as Guest</span>
+                </button>
+            </div>
+
+            <footer class="footer-text">
+                Tap to enter • Safe & Fair Play
+            </footer>
+
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <!-- Unified Auth Controller -->
+    <script src="js/auth-manager.js"></script>
+</body>
+</html>
