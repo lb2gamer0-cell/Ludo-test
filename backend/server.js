@@ -22,6 +22,7 @@ const app = express();
 const allowedOrigins = [
     'https://ludo-prime1.web.app',
     'https://ludo-prime1.firebaseapp.com',
+    'https://ludo-test.onrender.com',
     'http://localhost:3000',
     'http://localhost:8080',
     'http://localhost:5500',
