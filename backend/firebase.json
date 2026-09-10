@@ -1,11 +1,16 @@
 {
-  "hosting": {
+  "hosting": { 
+    "site": "ludo-prime-test2",
     "public": "frontend",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+
+
+
+    
     "rewrites": [
       {
         "source": "**",
