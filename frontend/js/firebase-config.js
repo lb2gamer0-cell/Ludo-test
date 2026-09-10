@@ -2,15 +2,15 @@
 // measurementId is optional. Keep this config limited to public Firebase Web App values.
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDHGZJM5wezR3bRoxsldD8h1T100PWJeF0",
-  authDomain: "ludo-prime1.firebaseapp.com",
-  databaseURL: "https://ludo-prime1-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "ludo-prime1",
-  storageBucket: "ludo-prime1.firebasestorage.app",
-  messagingSenderId: "634974489555",
-  appId: "1:634974489555:web:63f058ee33981fa1027d26",
-  measurementId: "G-FCB44JVPTB"
+  apiKey: "AIzaSyCfHxlNeJfaYk-O3Mk14Vo_Ygn-WvpIWZY",
+  authDomain: "test-9a5e3.firebaseapp.com",
+  projectId: "test-9a5e3",
+  storageBucket: "test-9a5e3.firebasestorage.app",
+  messagingSenderId: "169564541912",
+  appId: "1:169564541912:web:6ab66c8fd164f490bbd8ad",
+  measurementId: "G-4YTG0FXLWY"
 };
+
 
 let auth = null;
 let googleProvider = null;
