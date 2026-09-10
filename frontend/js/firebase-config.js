@@ -1,6 +1,11 @@
-// Firebase Web SDK configuration for ludo-prime1
-// measurementId is optional. Keep this config limited to public Firebase Web App values.
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCfHxlNeJfaYk-O3Mk14Vo_Ygn-WvpIWZY",
   authDomain: "test-9a5e3.firebaseapp.com",
@@ -10,6 +15,10 @@ const firebaseConfig = {
   appId: "1:169564541912:web:6ab66c8fd164f490bbd8ad",
   measurementId: "G-4YTG0FXLWY"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 
 let auth = null;
