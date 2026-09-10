@@ -1,11 +1,13 @@
+
 {
   "hosting": {
-    "public": "frontend",
+    "public": "Ludo-test/frontend",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
     "rewrites": [
       {
         "source": "**",
