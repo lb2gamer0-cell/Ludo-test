@@ -3,17 +3,17 @@ function getBackendUrl() {
     // Production: Firebase Hosting → Render Backend
     if (window.location.hostname.includes('web.app') ||
         window.location.hostname.includes('firebaseapp.com')) {
-        return 'https://ludo-game-cojp.onrender.com'; // ← CHANGE THIS TO YOUR RENDER URL
+        return 'https://ludo-test.onrender.com'; // ← CHANGE THIS TO YOUR RENDER URL
     }
     
     // Local development
     if (window.location.port && window.location.port !== '3000') {
-        return 'https://ludo-game-cojp.onrender.com';
+        return 'https://ludo-test.onrender.com';
     }
     if (window.location.origin && !window.location.origin.includes('file://')) {
         return window.location.origin;
     }
-    return 'https://ludo-game-cojp.onrender.com';
+    return 'https://ludo-test.onrender.com';
 }
 
 let selectedPlayerCount = 2;
