@@ -452,23 +452,23 @@ function resolveSocketIdentity(authToken, fallbackUsername, fallbackMobile) {
 // ============================================================
 // API ROUTES
 // ============================================================
+
 app.get('/api/health', (req, res) => {
-    res.json({ success: true, uptime: process.uptime(), activeRooms: rooms.size });
+    res.json({ success: true, uptime: process.uptime(), activeRooms: 0 });
 });
 
 app.get('/privacy', (req, res) => {
-    res.sendFile(path.join(__dirname, 'privacy.html'));
+    res.sendFile(path.join(__dirname, '../Privacy.html'));
 });
 
-
-
-// FIX: extra ultra-lightweight endpoint purely for the keep-alive pinger
-// below (and for external cron services like GitHub Actions / UptimeRobot).
+// FIX: extra ultra-lightweight endpoint purely for the keep-alive ping
+// below (and for external cron services like GitHub Actions / UptimeRobot)
 // Kept separate from /api/health so it never fails even if DB/room state
 // has an issue - it just proves the process is awake.
 app.get('/ping', (req, res) => {
     res.status(200).type('text/plain').send('pong');
 });
+
 
 app.post('/api/social-login', async (req, res) => {
     try {
