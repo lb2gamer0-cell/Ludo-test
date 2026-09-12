@@ -456,6 +456,12 @@ app.get('/api/health', (req, res) => {
     res.json({ success: true, uptime: process.uptime(), activeRooms: rooms.size });
 });
 
+app.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, 'privacy.html'));
+});
+
+
+
 // FIX: extra ultra-lightweight endpoint purely for the keep-alive pinger
 // below (and for external cron services like GitHub Actions / UptimeRobot).
 // Kept separate from /api/health so it never fails even if DB/room state
